@@ -8,6 +8,7 @@ import 'package:tramo/app/constants/themes/font_style.dart';
 import 'package:tramo/app/widgets/add_monitoring_button.dart';
 import 'package:tramo/app/widgets/menu_list.dart';
 import 'package:tramo/app/widgets/monitoring_list.dart';
+import 'package:tramo/app/widgets/sensors_page.dart';
 
 import '../controllers/home_controller.dart';
 
@@ -24,6 +25,9 @@ class HomeView extends GetView<HomeController> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth > 600) {
+            RxString maxH = constraints.maxHeight.toString().obs;
+            RxDouble maxHeig = constraints.maxHeight.obs;
+
             return Obx(
               () {
                 return Row(
@@ -92,12 +96,21 @@ class HomeView extends GetView<HomeController> {
                         ],
                       ),
                     ),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        child: Text("Click"),
-                      ),
-                    )
+                    Expanded(
+                      child: controller.monitoringList.isEmpty
+                          ? Center(
+                              child: Text(
+                                "There is no data to show",
+                                style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
+                              ),
+                            )
+                          : SensorsPage(
+                              dataMonit: controller.monitoringList,
+                              index: controller.activePage.value,
+                              dat: maxH.value,
+                              maxHeig: maxHeig.value,
+                            ),
+                    ),
                   ],
                 );
               },

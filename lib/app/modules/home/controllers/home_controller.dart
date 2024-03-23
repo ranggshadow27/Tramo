@@ -11,8 +11,8 @@ class HomeController extends GetxController {
     super.onInit();
   }
 
-  RxBool isNavbarShrink = true.obs;
   TextEditingController monitoringGroupTC = TextEditingController();
+  RxBool isNavbarShrink = true.obs;
   RxList monitoringList = [].obs;
 
   RxInt activePage = 0.obs;
