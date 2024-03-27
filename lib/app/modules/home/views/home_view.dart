@@ -1,5 +1,4 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -24,7 +23,7 @@ class HomeView extends GetView<HomeController> {
       backgroundColor: BaseColors.primaryBackground,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth > 600) {
+          if (constraints.maxWidth > 400) {
             RxString maxH = constraints.maxHeight.toString().obs;
             RxDouble maxHeig = constraints.maxHeight.obs;
 
@@ -121,7 +120,7 @@ class HomeView extends GetView<HomeController> {
                 Container(
                   height: maxHeight * .08,
                   width: maxWidth,
-                  color: BaseColors.navbarBackground,
+                  color: Color.fromARGB(255, 53, 53, 192),
                 ),
               ],
             );

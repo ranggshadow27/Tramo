@@ -23,7 +23,6 @@ class HomeController extends GetxController {
 
   switchPage(int indexPage) {
     activePage.value = indexPage;
-
     debugPrint("Saat ini masuk page dari menu ${monitoringList[indexPage]}");
   }
 
