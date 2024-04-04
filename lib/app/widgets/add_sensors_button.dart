@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
@@ -6,21 +6,23 @@ import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
 
-class AddMonitoringButton extends StatelessWidget {
-  const AddMonitoringButton({
+class AddSensorButton extends StatelessWidget {
+  const AddSensorButton({
     super.key,
     required this.controller,
     required this.title,
+    required this.index,
     this.callback,
   });
 
   final String title;
   final VoidCallback? callback;
   final HomeController controller;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
-    final bool isShrink = controller.isNavbarShrink.value;
+    final bool isShrink = controller.isWideWindow.value;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -31,12 +33,12 @@ class AddMonitoringButton extends StatelessWidget {
           onTap: () {
             showDialog(
               context: context,
-              builder: (context) => myCustomDialog(context, controller),
+              builder: (context) => myCustomDialog(context, controller, index),
             );
           },
           borderRadius: BorderRadius.circular(8),
           child: Container(
-            width: isShrink ? 260 : 40,
+            width: isShrink ? 160 : 40,
             height: isShrink ? 54 : 40,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
@@ -50,15 +52,14 @@ class AddMonitoringButton extends StatelessWidget {
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const SizedBox(width: 45),
+                      const SizedBox(width: 20),
                       const Icon(
                         FontAwesomeIcons.plus,
-                        color: AccentColors.blueColor,
+                        color: AccentColors.greenColor,
                         size: 12,
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
-                        width: 150,
                         child: Text(
                           title,
                           style: AppFonts.semiBoldText.copyWith(color: BaseColors.primaryText),
@@ -70,7 +71,7 @@ class AddMonitoringButton extends StatelessWidget {
                 : const Center(
                     child: Icon(
                       FontAwesomeIcons.plus,
-                      color: AccentColors.blueColor,
+                      color: AccentColors.greenColor,
                       size: 12,
                     ),
                   ),
@@ -81,23 +82,38 @@ class AddMonitoringButton extends StatelessWidget {
   }
 }
 
-Widget myCustomDialog(BuildContext context, HomeController controller) {
+Widget myCustomDialog(BuildContext context, HomeController controller, int index) {
   return Dialog(
     child: IntrinsicHeight(
       child: Container(
-        width: MediaQuery.sizeOf(context).width * .4,
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            Text("data"),
-            TextField(
-              controller: controller.monitoringGroupTC,
+            const Text("Please insert the Sensor Id from PRTG"),
+            SizedBox(
+              width: 300,
+              child: TextField(
+                controller: controller.sensorsIdTC,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
             ),
+            const SizedBox(height: 20),
+            const Text("Please insert the PRTG IP"),
+            SizedBox(
+              width: 300,
+              child: TextField(
+                controller: controller.prtgIpTC,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
+            ),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                controller.saveMonitoringGroup();
+                controller.saveSensorsData(index);
               },
-              child: Text("Submit"),
+              child: const Text("Submit"),
             ),
           ],
         ),

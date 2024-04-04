@@ -36,7 +36,7 @@ class AddMonitoringButton extends StatelessWidget {
           },
           borderRadius: BorderRadius.circular(8),
           child: Container(
-            width: isShrink ? 260 : 40,
+            width: isShrink ? 230 : 40,
             height: isShrink ? 54 : 40,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(

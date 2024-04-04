@@ -33,6 +33,7 @@ class MonitoringList extends StatelessWidget {
         child: InkWell(
           onTap: callback,
           borderRadius: BorderRadius.circular(8),
+          hoverColor: BaseColors.secondaryBackground.withOpacity(.4),
           child: Container(
             width: isShrink ? 260 : 40,
             padding: const EdgeInsets.symmetric(vertical: 12),

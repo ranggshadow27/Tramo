@@ -18,4 +18,5 @@ class AccentColors {
   static const Color purpleColor = Color(0xFF530086);
   static const Color blueColor = Color(0xFF006ED3);
   static const Color yellowColor = Color(0xFFFCD46F);
+  static const Color pinkColor = Color.fromARGB(255, 164, 66, 92);
 }
