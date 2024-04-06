@@ -26,9 +26,9 @@ class HomeView extends GetView<HomeController> {
           RxString maxH = constraints.maxHeight.toString().obs;
           RxDouble maxHeig = constraints.maxHeight.obs;
 
-          if (constraints.maxWidth < 800) {
+          if (constraints.maxWidth <= 800) {
             controller.isNavbarShrink.value = false;
-          } else if (constraints.maxWidth < 1000) {
+          } else if (constraints.maxWidth <= 1000) {
             controller.isWideWindow.value = false;
           } else {
             controller.isWideWindow.value = true;

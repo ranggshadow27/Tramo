@@ -57,8 +57,8 @@ class HomeController extends GetxController {
 
   Future<List<String>> getMonitoringGroup() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> data = prefs.getStringList('tes') ?? [];
-    debugPrint("Get datanya ni coy : ${data.toString()}");
+    List<String> data = prefs.getStringList('monitoringMenu') ?? [];
+    debugPrint("Berhasil load data menunya nih coy : ${data.toString()}");
 
     return data;
   }
@@ -66,13 +66,23 @@ class HomeController extends GetxController {
   void saveMonitoringGroup() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> data = await getMonitoringGroup();
+    bool isDuplicate = data.any((element) => element == monitoringGroupTC.text);
 
     if (monitoringGroupTC.text.isNotEmpty) {
-      monitoringList.add(monitoringGroupTC.text);
-      data.add(monitoringGroupTC.text);
-      debugPrint(monitoringList.toString());
+      if (!isDuplicate) {
+        monitoringList.add(monitoringGroupTC.text);
+        data.add(monitoringGroupTC.text);
+        String sensorValueKey =
+            "sensorvalue_${monitoringGroupTC.text.removeAllWhitespace.toLowerCase()}";
 
-      prefs.setStringList('tes', data);
+        prefs.setString(sensorValueKey, "[]");
+        prefs.setStringList('monitoringMenu', data);
+
+        debugPrint("Berikut sensorvaluenya : $sensorValueKey");
+        debugPrint("Berhasil menambahkan menu baru berikut isinya ${monitoringList.toString()}");
+      } else {
+        debugPrint("Hmm.. menu sudah ada");
+      }
     } else {
       debugPrint("Diisi dulu lah breay");
     }
@@ -95,6 +105,18 @@ class HomeController extends GetxController {
     return dataList;
   }
 
+  Future getSensorsValue(String key) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    String? data = pref.getString(key);
+
+    if (data != null) {
+      return jsonDecode(data);
+    }
+
+    return ["Kosong"];
+  }
+
   Future saveSensorsData(int index) async {
     final SharedPreferences pref = await SharedPreferences.getInstance();
 
@@ -103,10 +125,23 @@ class HomeController extends GetxController {
         debugPrint("Ini data sensor dari user : ${sensorsIdTC.text}");
 
         String menuTitle = monitoringList[index];
-        debugPrint("Ini nama monitornya : $monitoringList");
+        debugPrint("Ini nama monitornya : $menuTitle");
 
         sensorsData.value = await getSensorsData();
-        debugPrint("Ini data sensorDatanya : $sensorsData");
+        String key = "sensorvalue_${menuTitle.toLowerCase().removeAllWhitespace}";
+
+        List sensorsValue = await getSensorsValue(key);
+        debugPrint("Ini sensorvaluenya abis diget $key : $sensorsValue");
+
+        // debugPrint("Ini data sensorDatanya : $sensorsData");
+
+        sensorsValue.add({
+          "sensorId": sensorsIdTC.text,
+          "value": [],
+          "time": [],
+        });
+
+        // debugPrint("Ini sensorvaluenya setelah ditambah : $sensorsValue");
 
         if (sensorsData[menuTitle] == null) {
           sensorsData.addAll(
@@ -117,6 +152,7 @@ class HomeController extends GetxController {
               }
             },
           );
+
           debugPrint("membuat data baru");
         } else {
           sensorsData[menuTitle]['Id'].add(int.parse(sensorsIdTC.text));
@@ -125,10 +161,12 @@ class HomeController extends GetxController {
         }
 
         pref.setString('sensorData', jsonEncode(sensorsData));
+        pref.setString(key, jsonEncode(sensorsValue));
+
         update();
         Get.back();
 
-        debugPrint("Sukses save ke prefs, isinya $sensorsData");
+        debugPrint("Sukses save ke prefs, isinya: \n - $sensorsData \n - $key : $sensorsValue");
       } catch (e) {
         debugPrint(e.toString());
       }
