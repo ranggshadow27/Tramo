@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
@@ -105,27 +106,29 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                   Expanded(
-                    child: controller.monitoringList.isEmpty
-                        ? Center(
-                            child: Text(
-                              "There is no data to show",
-                              style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
-                            ),
-                          )
-                        : Center(
-                            child: GetBuilder<HomeController>(
-                              builder: (c) {
-                                return SensorsPage(
-                                  sensorsData: c.sensorsData,
-                                  dataMonit: c.monitoringList,
-                                  index: c.activePage.value,
-                                  dat: maxH.value,
-                                  maxHeig: maxHeig.value,
-                                  controller: c,
-                                );
-                              },
-                            ),
-                          ),
+                    child: controller.isLoading.value == true
+                        ? const Center(child: CircularProgressIndicator())
+                        : controller.monitoringList.isEmpty
+                            ? Center(
+                                child: Text(
+                                  "There is no data to show",
+                                  style:
+                                      AppFonts.regularText.copyWith(color: BaseColors.primaryText),
+                                ),
+                              )
+                            : Center(
+                                child: GetBuilder<HomeController>(
+                                  builder: (c) {
+                                    debugPrint(
+                                        "------------------ Updating Page -------------------");
+                                    return SensorsPage(
+                                      dat: maxH.value,
+                                      maxHeig: maxHeig.value,
+                                      controller: c,
+                                    );
+                                  },
+                                ),
+                              ),
                   ),
                 ],
               );

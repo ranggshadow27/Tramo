@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import 'package:tramo/app/widgets/add_sensors_button.dart';
 
@@ -8,27 +9,22 @@ import '../constants/themes/font_style.dart';
 class SensorsPage extends StatelessWidget {
   const SensorsPage({
     super.key,
-    required this.dataMonit,
-    required this.sensorsData,
-    required this.index,
     required this.controller,
     this.dat,
     this.maxHeig,
   });
 
-  final List dataMonit;
-  final Map sensorsData;
-  final int index;
   final String? dat;
   final double? maxHeig;
   final HomeController controller;
 
   @override
   Widget build(BuildContext context) {
-    String menuTitle = dataMonit[index];
-    Map<String, dynamic> data = sensorsData[menuTitle] ?? {};
+    int index = controller.activePage.value;
+    String menuTitle = controller.monitoringList[index].toString().camelCase!;
+    // Map<String, dynamic> data = sensorsData[menuTitle] ?? {'kosong': 'kosong'};
 
-    debugPrint("Ini adalah datanya ==========> $data");
+    // debugPrint("Ini adalah datanya ==========> $data");
 
     return Scaffold(
       backgroundColor: BaseColors.primaryBackground,
@@ -47,7 +43,7 @@ class SensorsPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  menuTitle,
+                  controller.monitoringList[index],
                   style: AppFonts.boldText.copyWith(
                     color: BaseColors.primaryText,
                     fontSize: 18.0,
@@ -76,7 +72,7 @@ class SensorsPage extends StatelessWidget {
                 var height = MediaQuery.of(context).size.height;
                 var width = MediaQuery.of(context).size.width;
 
-                if (sensorsData[menuTitle] == null) {
+                if (controller.sensorsData[menuTitle] == null) {
                   return Center(
                     child: Text(
                       "There is no data to show",
@@ -94,7 +90,7 @@ class SensorsPage extends StatelessWidget {
                   width: width * 1,
                   child: GridView.builder(
                     padding: const EdgeInsets.all(20),
-                    itemCount: sensorsData[menuTitle]['Id'].length,
+                    itemCount: controller.sensorsData[menuTitle]['Id'].length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: constraints.maxWidth <= 720 ? 2 : 3,
                       childAspectRatio: constraints.maxWidth <= 720 ? 1.5 : 2,
@@ -108,7 +104,7 @@ class SensorsPage extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          "Sensor Id : ${sensorsData[menuTitle]['Id'][index]} \n PRTG IP : ${sensorsData[menuTitle]['prtgIp'][index]}",
+                          "Sensor Id : ${controller.sensorsData[menuTitle]['Id'][index]} \n PRTG IP : ${controller.sensorsData[menuTitle]['prtgIp'][index]}",
                         ),
                       ),
                     ),
