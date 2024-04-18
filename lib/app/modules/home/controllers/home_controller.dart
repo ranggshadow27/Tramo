@@ -78,6 +78,9 @@ class HomeController extends GetxController {
         if (!db.objectStoreNames.contains('sensorsData')) {
           db.createObjectStore('sensorsData', autoIncrement: true);
         }
+        if (!db.objectStoreNames.contains('sensorsValue')) {
+          db.createObjectStore('sensorsValue', autoIncrement: true);
+        }
       },
     );
   }
@@ -93,28 +96,30 @@ class HomeController extends GetxController {
   }
 
   void saveMonitoringGroup() async {
-    List data = await getMonitoringGroup();
-    bool isDuplicate = data.any((element) => element == monitoringGroupTC.text);
+    List monitoringData = await getMonitoringGroup();
+    bool isDuplicate = monitoringData.any((element) => element == monitoringGroupTC.text);
 
     if (monitoringGroupTC.text.isNotEmpty) {
+      String sensorValueKey = "sv_${monitoringGroupTC.text.camelCase}";
       if (!isDuplicate) {
-        data.add(monitoringGroupTC.text);
-        // String sensorValueKey =
-        //     "sensorvalue_${monitoringGroupTC.text.removeAllWhitespace.toLowerCase()}";
+        monitoringData.add(monitoringGroupTC.text);
 
         var txn = db!.transaction('monitoringMenu', 'readwrite');
         var store = txn.objectStore('monitoringMenu');
-        await store.put(data, 'monitoringMenuList');
-        // await store.put([], sensorValueKey);
-
+        await store.put(monitoringData, 'monitoringMenuList');
         await txn.completed;
+
+        var txnSv = db!.transaction('sensorsValue', 'readwrite');
+        var storeSv = txnSv.objectStore('sensorsValue');
+        await storeSv.put([], sensorValueKey);
+        await txnSv.completed;
 
         monitoringList.add(monitoringGroupTC.text);
         Get.back();
         monitoringGroupTC.clear();
 
-        // debugPrint("Berikut sensorvaluenya : $sensorValueKey");
-        debugPrint("Berhasil menambahkan menu baru berikut isinya ${monitoringList.toString()}");
+        debugPrint(
+            "Berhasil menambahkan menu $sensorValueKey berikut isinya \n ->${monitoringList.toString()}");
       } else {
         debugPrint("Hmm.. menu sudah ada");
       }
@@ -123,7 +128,7 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<Map<String, dynamic>> getSensorsData() async {
+  Future<Map<String, dynamic>> getSensorsData({String? key}) async {
     Map<String, dynamic> sensors = {};
     Transaction txn = db!.transaction('sensorsData', 'readonly');
     ObjectStore store = txn.objectStore('sensorsData');
@@ -143,91 +148,116 @@ class HomeController extends GetxController {
       Map<String, dynamic> dataMap = (obj as Map).map(
         (key, value) => MapEntry(key.toString(), value),
       );
-      debugPrint("ini get sensorsData dari Objek yang udah dimap ges : \n $dataMap");
+      debugPrint("ini get sensorsData dari Objek yang udah dimap ges : \n -> $dataMap");
       sensors.addAll(dataMap);
     }
 
     if (sensorsData.isEmpty) {
       debugPrint("Sensors is Empty saddddddddddddd!");
-    } else {
-      debugPrint("Ini datanya coy ${sensorsData.toString()}");
     }
+
+    if (key != null) {
+      if (sensors[key] != null) {
+        debugPrint("ini keynya : \n -> $key");
+        debugPrint(
+            "ini get sensorsData sesuai keynya : \n -> tipe : ${sensors[key].runtimeType} ${sensors[key]}");
+        return Map<String, dynamic>.from(sensors[key]);
+      } else {
+        return Map<String, dynamic>.from({});
+      }
+    }
+
+    debugPrint("Return semua sensors data -> $key");
 
     return sensors;
   }
 
   Future getSensorsValue(String key) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
+    List sensorsValueList = [];
 
-    String? data = pref.getString(key);
+    Transaction txn = db!.transaction('sensorsValue', 'readonly');
+    ObjectStore store = txn.objectStore('sensorsValue');
 
-    if (data != null) {
-      return jsonDecode(data);
+    var obj = await store.getObject(key);
+
+    await txn.completed;
+
+    if (obj != null) {
+      sensorsValueList.addAll(List.from(obj as List));
+      debugPrint("Ini isi data Sensor Value $key : \n -> $sensorsValueList");
+
+      return sensorsValueList;
     }
 
-    return ["Kosong"];
+    debugPrint("Kayaknya data Sensor Valuenya kosong : \n -> $sensorsValueList");
+    return sensorsValueList;
+  }
+
+  Future saveSensorsValue(String key) async {
+    List sensorsValueList = await getSensorsValue(key);
+
+    sensorsValueList.add({
+      "sensorId": sensorsIdTC.text,
+      "value": [],
+      "time": [],
+    });
+
+    Transaction txn = db!.transaction('sensorsValue', 'readwrite');
+    ObjectStore store = txn.objectStore('sensorsValue');
+
+    await store.put(sensorsValueList, key);
+
+    debugPrint("Sukses input data Sensor Valuenya ke objekstore $key : \n -> $sensorsValueList");
+
+    await txn.completed;
   }
 
   Future saveSensorsData(int index) async {
-    // final SharedPreferences pref = await SharedPreferences.getInstance();
-
     if (sensorsIdTC.text.isNotEmpty) {
       try {
+        String menuTitle = monitoringList[index].toString().camelCase!;
+        Map<String, dynamic> keyedSensorsData = {};
+
+        debugPrint("Ini nama monitornya : $menuTitle");
         debugPrint("Ini data sensor dari user : ${sensorsIdTC.text}");
 
-        String menuTitle = monitoringList[index].toString().camelCase!;
-        debugPrint("Ini nama monitornya : $menuTitle");
+        keyedSensorsData = await getSensorsData(key: menuTitle);
 
-        sensorsData.value = await getSensorsData();
-        debugPrint("Ini data sensorDatanya : $sensorsData");
+        debugPrint("Ini data keyedsensorDatanya : \n -> $keyedSensorsData");
 
-        // String key = "sensorvalue_${menuTitle.toLowerCase().removeAllWhitespace}";
+        if (keyedSensorsData.isEmpty) {
+          keyedSensorsData.addAll({
+            'Id': [int.parse(sensorsIdTC.text)],
+            'prtgIp': [int.parse(prtgIpTC.text)],
+          });
 
-        // List sensorsValue = await getSensorsValue(key);
-        // debugPrint("Ini sensorvaluenya abis diget $key : $sensorsValue");
+          debugPrint(
+              "membuat data ke keyedSensorsData $menuTitle, output : \n -> $keyedSensorsData");
+        } else {
+          keyedSensorsData['Id'].add(int.parse(sensorsIdTC.text));
+          keyedSensorsData['prtgIp'].add(int.parse(prtgIpTC.text));
 
-        // sensorsValue.add({
-        //   "sensorId": sensorsIdTC.text,
-        //   "value": [],
-        //   "time": [],
-        // });
+          debugPrint("menambahkan data baru, output : $keyedSensorsData");
+        }
 
-        // debugPrint("Ini sensorvaluenya setelah ditambah : $sensorsValue");
+        sensorsData.addAll({menuTitle: keyedSensorsData});
+        debugPrint("menambahkan data ke master sensors data juga, output : $sensorsData");
 
         Transaction txn = db!.transaction('sensorsData', 'readwrite');
         ObjectStore store = txn.objectStore('sensorsData');
 
-        if (sensorsData[menuTitle] == null) {
-          sensorsData.addAll(
-            {
-              menuTitle: {
-                'Id': [int.parse(sensorsIdTC.text)],
-                'prtgIp': [int.parse(prtgIpTC.text)],
-              }
-            },
-          );
-
-          debugPrint("membuat data baru, output : $sensorsData");
-        } else {
-          sensorsData[menuTitle]['Id'].add(int.parse(sensorsIdTC.text));
-          sensorsData[menuTitle]['prtgIp'].add(int.parse(prtgIpTC.text));
-
-          debugPrint("menambahkan data baru, output : $sensorsData");
-        }
-
         await store.put(sensorsData, 'sensorsData');
+        await txn.completed;
 
-        // pref.setString('sensorData', jsonEncode(sensorsData));
-        // pref.setString(key, jsonEncode(sensorsValue));
+        await saveSensorsValue('sv_$menuTitle');
 
         Get.back();
-
         sensorsIdTC.clear();
         prtgIpTC.clear();
 
         update();
 
-        debugPrint("Sukses save ke localStorage, isinya: \n - $sensorsData");
+        debugPrint("Sukses save sensorsdata ke localStorage, isinya: \n - $sensorsData");
       } catch (e) {
         debugPrint(e.toString());
       }

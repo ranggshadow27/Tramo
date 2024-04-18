@@ -20,10 +20,10 @@ class SensorsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int index = controller.activePage.value;
-    String menuTitle = controller.monitoringList[index].toString().camelCase!;
-    // Map<String, dynamic> data = sensorsData[menuTitle] ?? {'kosong': 'kosong'};
+    int activePage = controller.activePage.value;
+    String menuTitle = controller.monitoringList[activePage].toString().camelCase!;
 
+    // Map<String, dynamic> data = sensorsData[menuTitle] ?? {'kosong': 'kosong'};
     // debugPrint("Ini adalah datanya ==========> $data");
 
     return Scaffold(
@@ -43,7 +43,7 @@ class SensorsPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  controller.monitoringList[index],
+                  controller.monitoringList[activePage],
                   style: AppFonts.boldText.copyWith(
                     color: BaseColors.primaryText,
                     fontSize: 18.0,
@@ -61,7 +61,7 @@ class SensorsPage extends StatelessWidget {
                 AddSensorButton(
                   controller: controller,
                   title: "Add Sensors",
-                  index: index,
+                  index: activePage,
                 )
               ],
             ),
@@ -80,6 +80,9 @@ class SensorsPage extends StatelessWidget {
                     ),
                   );
                 }
+
+                List sensorId = controller.sensorsData[menuTitle]['Id'] ?? [];
+                List sensorIp = controller.sensorsData[menuTitle]['prtgIp'] ?? [];
 
                 return SizedBox(
                   height: maxHeig! < 400 || maxHeig! < 670
@@ -104,7 +107,7 @@ class SensorsPage extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          "Sensor Id : ${controller.sensorsData[menuTitle]['Id'][index]} \n PRTG IP : ${controller.sensorsData[menuTitle]['prtgIp'][index]}",
+                          "Sensor Id : ${sensorId[index]} \n PRTG IP : ${sensorIp[index]}",
                         ),
                       ),
                     ),
