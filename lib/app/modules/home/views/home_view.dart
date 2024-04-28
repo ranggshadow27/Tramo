@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 
-import 'package:get/get.dart';
 import 'package:tramo/app/constants/themes/app_colors.dart';
 import 'package:tramo/app/constants/themes/font_style.dart';
 import 'package:tramo/app/widgets/add_monitoring_button.dart';
@@ -36,103 +35,97 @@ class HomeView extends GetView<HomeController> {
             controller.isNavbarShrink.value = true;
           }
 
-          return Obx(
-            () {
-              return Row(
-                children: [
-                  Container(
-                    height: maxHeight,
-                    color: BaseColors.navbarBackground,
-                    padding: EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: controller.isNavbarShrink.value ? 32 : 12,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        tramoLogo(
-                          controller: controller,
-                          width: constraints.maxWidth,
-                          isShrink: controller.isNavbarShrink.value,
-                        ),
-                        const SizedBox(height: 24),
-                        MenuList(
-                          title: "Dashboard",
-                          isShrink: controller.isNavbarShrink.value,
-                          icon: FontAwesomeIcons.qrcode,
-                          iconColor: AccentColors.tealColor,
-                        ),
-                        MenuList(
-                          title: "Monitoring",
-                          isShrink: controller.isNavbarShrink.value,
-                          icon: FontAwesomeIcons.chartSimple,
-                          iconColor: AccentColors.redColor,
-                        ),
-                        SizedBox(
-                          width: controller.isNavbarShrink.value ? 230 : 40,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: controller.monitoringList.length,
-                            itemBuilder: (context, index) {
-                              if (controller.monitoringList.isEmpty) {
-                                return const SizedBox();
-                              } else {
-                                return Obx(() {
-                                  return MonitoringList(
-                                    callback: () {
-                                      controller.switchPage(index);
-                                    },
-                                    containerColor: controller.activePage.value == index
-                                        ? BaseColors.secondaryBackground
-                                        : Colors.transparent,
-                                    title: controller.monitoringList[index],
-                                    isShrink: controller.isNavbarShrink.value,
-                                    icon: FontAwesomeIcons.circle,
-                                    iconColor: controller.autoColor(index),
-                                  );
-                                });
-                              }
-                            },
-                          ),
-                        ),
-                        const Divider(),
-                        AddMonitoringButton(
-                          title: 'Add New Group',
-                          controller: controller,
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+          return Row(
+            children: [
+              Obx(
+                () => Container(
+                  height: maxHeight,
+                  color: BaseColors.navbarBackground,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: controller.isNavbarShrink.value ? 32 : 12,
                   ),
-                  Expanded(
-                    child: controller.isLoading.value == true
-                        ? const Center(child: CircularProgressIndicator())
-                        : controller.monitoringList.isEmpty
-                            ? Center(
-                                child: Text(
-                                  "There is no data to show",
-                                  style:
-                                      AppFonts.regularText.copyWith(color: BaseColors.primaryText),
-                                ),
-                              )
-                            : Center(
-                                child: GetBuilder<HomeController>(
-                                  builder: (c) {
-                                    debugPrint(
-                                        "------------------ Updating Page -------------------");
-                                    return SensorsPage(
-                                      dat: maxH.value,
-                                      maxHeig: maxHeig.value,
-                                      controller: c,
-                                    );
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      tramoLogo(
+                        controller: controller,
+                        width: constraints.maxWidth,
+                        isShrink: controller.isNavbarShrink.value,
+                      ),
+                      const SizedBox(height: 24),
+                      MenuList(
+                        title: "Dashboard",
+                        isShrink: controller.isNavbarShrink.value,
+                        icon: FontAwesomeIcons.qrcode,
+                        iconColor: AccentColors.tealColor,
+                      ),
+                      MenuList(
+                        title: "Monitoring",
+                        isShrink: controller.isNavbarShrink.value,
+                        icon: FontAwesomeIcons.chartSimple,
+                        iconColor: AccentColors.redColor,
+                      ),
+                      SizedBox(
+                        width: controller.isNavbarShrink.value ? 230 : 40,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: controller.monitoringList.length,
+                          itemBuilder: (context, index) {
+                            if (controller.monitoringList.isEmpty) {
+                              return const SizedBox();
+                            } else {
+                              return Obx(() {
+                                return MonitoringList(
+                                  callback: () {
+                                    controller.switchPage(index);
                                   },
-                                ),
-                              ),
+                                  containerColor: controller.activePage.value == index
+                                      ? BaseColors.secondaryBackground
+                                      : Colors.transparent,
+                                  title: controller.monitoringList[index],
+                                  isShrink: controller.isNavbarShrink.value,
+                                  icon: FontAwesomeIcons.circle,
+                                  iconColor: controller.autoColor(index),
+                                );
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      const Divider(),
+                      AddMonitoringButton(
+                        title: 'Add New Group',
+                        controller: controller,
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                ],
-              );
-            },
+                ),
+              ),
+              GetBuilder<HomeController>(builder: (c) {
+                debugPrint("-----------------Reload Page-------------------");
+                return Expanded(
+                  child: c.isLoading == true
+                      ? const Center(child: CircularProgressIndicator())
+                      : c.monitoringList.isEmpty
+                          ? Center(
+                              child: Text(
+                                "There is no data to show",
+                                style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
+                              ),
+                            )
+                          : Center(
+                              child: SensorsPage(
+                                dat: maxH.value,
+                                maxHeig: maxHeig.value,
+                                controller: c,
+                              ),
+                            ),
+                );
+              }),
+            ],
           );
         },
       ),

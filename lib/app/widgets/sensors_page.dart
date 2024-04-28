@@ -84,6 +84,8 @@ class SensorsPage extends StatelessWidget {
                 List sensorId = controller.sensorsData[menuTitle]['Id'] ?? [];
                 List sensorIp = controller.sensorsData[menuTitle]['prtgIp'] ?? [];
 
+                String firstMonitoringMenu = controller.monitoringList[0].toString().camelCase!;
+
                 return SizedBox(
                   height: maxHeig! < 400 || maxHeig! < 670
                       ? height * .8
@@ -105,10 +107,42 @@ class SensorsPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         color: AccentColors.tealColor,
                       ),
-                      child: Center(
-                        child: Text(
-                          "Sensor Id : ${sensorId[index]} \n PRTG IP : ${sensorIp[index]}",
+                      child: FutureBuilder(
+                        future: controller.fetchApiData(
+                          index: index,
+                          key: sensorId[index].toString(),
+                          objectName: controller.activeObjectName.isEmpty
+                              ? "sv_$firstMonitoringMenu"
+                              : controller.activeObjectName.value,
                         ),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text("EROR COK : ${snapshot.error}"),
+                            );
+                          }
+
+                          if (!snapshot.hasData || snapshot.data == null) {
+                            return Center(
+                              child: Text(
+                                "Sensor Id : ${sensorId[index]} \nTerjadi Kesalahan Euy! Sensor tidak ada",
+                              ),
+                            );
+                          }
+
+                          Map<String, dynamic> data = snapshot.data;
+                          return Center(
+                            child: Text(
+                              "Sensor Id : ${sensorId[index]}\n-> Name : ${data['name']}\n-> Value : ${data['value'].last}\n-> Time : ${data['time'].last}",
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),

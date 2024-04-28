@@ -1,13 +1,13 @@
 // import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'dart:js_interop';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'package:tramo/app/constants/themes/app_colors.dart';
+import 'package:tramo/app/utils/utils.dart';
 
 class HomeController extends GetxController {
   IdbFactory databaseFactory = getIdbFactory()!;
@@ -17,9 +17,12 @@ class HomeController extends GetxController {
   void onInit() async {
     super.onInit();
     await initDatabase();
+
     monitoringList.value = await getMonitoringGroup();
     sensorsData.value = await getSensorsData();
-    isLoading.value = false;
+
+    isLoading = false;
+    update();
   }
 
   TextEditingController monitoringGroupTC = TextEditingController();
@@ -28,10 +31,15 @@ class HomeController extends GetxController {
 
   RxList monitoringList = [].obs;
 
-  RxBool isLoading = true.obs;
+  RxBool isRefresh = true.obs;
+  bool isLoading = true;
   RxBool isNavbarShrink = true.obs;
   RxBool isWideWindow = true.obs;
   RxInt activePage = 0.obs;
+  RxString activeObjectName = "".obs;
+
+  String? sensorKey;
+  int? sensorIndex;
 
   // RxList sensorsData = [].obs;
   RxMap sensorsData = {}.obs;
@@ -42,7 +50,12 @@ class HomeController extends GetxController {
 
   switchPage(int indexPage) {
     activePage.value = indexPage;
-    debugPrint("Saat ini masuk page dari menu ${monitoringList[indexPage]}");
+    activeObjectName.value = "sv_${monitoringList[indexPage].toString().camelCase}";
+
+    debugPrint(
+        "Saat ini masuk page dari menu ${monitoringList[indexPage]} -- ${activeObjectName.value}");
+
+    // isRefresh.value = true;
     update();
   }
 
@@ -92,6 +105,8 @@ class HomeController extends GetxController {
 
     await txn.completed;
 
+    debugPrint("Berikut monitoringMenunya :\n ${request.toString()}");
+
     return request != null ? List.from(request as List) : [];
   }
 
@@ -115,6 +130,7 @@ class HomeController extends GetxController {
         await txnSv.completed;
 
         monitoringList.add(monitoringGroupTC.text);
+        update();
         Get.back();
         monitoringGroupTC.clear();
 
@@ -128,19 +144,81 @@ class HomeController extends GetxController {
     }
   }
 
+  Future getSensorsValue(String objectStore) async {
+    List sensorsValueList = [];
+
+    Transaction txn = db!.transaction('sensorsValue', 'readonly');
+    ObjectStore store = txn.objectStore('sensorsValue');
+
+    var obj = await store.getObject(objectStore);
+
+    await txn.completed;
+
+    if (obj != null) {
+      sensorsValueList.addAll(List.from(obj as List));
+      debugPrint("Ini isi data Sensor Value $objectStore : \n -> $sensorsValueList");
+
+      return sensorsValueList;
+    }
+
+    debugPrint("Kayaknya data Sensor Valuenya kosong : \n -> $sensorsValueList");
+    return sensorsValueList;
+  }
+
+  Future saveSensorValue(String objectName, int index, int value, String sensorName) async {
+    List sensorsValueList = await getSensorsValue(objectName);
+
+    DateTime now = DateTime.now();
+    String timeValue = DateFormat.Hm().format(now);
+
+    var senValLength = sensorsValueList[index]['time'] ?? [];
+
+    debugPrint("ini lastest timeValue dari index ke $index -> ${senValLength.isEmpty}");
+
+    if (senValLength.isEmpty || senValLength.last != timeValue) {
+      Transaction txn = db!.transaction('sensorsValue', 'readwrite');
+      ObjectStore store = txn.objectStore('sensorsValue');
+
+      sensorsValueList[index]['value'].add(value);
+      sensorsValueList[index].addAll({'name': sensorName});
+      sensorsValueList[index]['time'].add(timeValue);
+
+      await store.put(sensorsValueList, objectName);
+      await txn.completed;
+
+      debugPrint("Ini sensorsValueList setelah di Add-> \n${sensorsValueList[index]}");
+
+      return sensorsValueList[index];
+    } else {
+      debugPrint("Time valuenya sama, gajadi ditambah");
+    }
+  }
+
+  Future createSensorsStore(String key) async {
+    List sensorsValueList = await getSensorsValue(key);
+
+    sensorsValueList.add({
+      "sensorId": sensorsIdTC.text,
+      "value": [],
+      "time": [],
+    });
+
+    Transaction txn = db!.transaction('sensorsValue', 'readwrite');
+    ObjectStore store = txn.objectStore('sensorsValue');
+
+    await store.put(sensorsValueList, key);
+
+    debugPrint("Sukses input data Sensor Valuenya ke objekstore $key : \n -> $sensorsValueList");
+
+    await txn.completed;
+  }
+
   Future<Map<String, dynamic>> getSensorsData({String? key}) async {
     Map<String, dynamic> sensors = {};
     Transaction txn = db!.transaction('sensorsData', 'readonly');
     ObjectStore store = txn.objectStore('sensorsData');
 
     var obj = await store.getObject('sensorsData');
-
-    // var cursor = store.openCursor(autoAdvance: true).asBroadcastStream();
-
-    // await for (var entry in cursor) {
-    //   // sensorsData.addAll({entry.key.toString(): entry.value});
-    //   debugPrint("Ini datanya --> ${entry.key} : ${entry.value}");
-    // }
 
     await txn.completed;
 
@@ -170,46 +248,6 @@ class HomeController extends GetxController {
     debugPrint("Return semua sensors data -> $key");
 
     return sensors;
-  }
-
-  Future getSensorsValue(String key) async {
-    List sensorsValueList = [];
-
-    Transaction txn = db!.transaction('sensorsValue', 'readonly');
-    ObjectStore store = txn.objectStore('sensorsValue');
-
-    var obj = await store.getObject(key);
-
-    await txn.completed;
-
-    if (obj != null) {
-      sensorsValueList.addAll(List.from(obj as List));
-      debugPrint("Ini isi data Sensor Value $key : \n -> $sensorsValueList");
-
-      return sensorsValueList;
-    }
-
-    debugPrint("Kayaknya data Sensor Valuenya kosong : \n -> $sensorsValueList");
-    return sensorsValueList;
-  }
-
-  Future saveSensorsValue(String key) async {
-    List sensorsValueList = await getSensorsValue(key);
-
-    sensorsValueList.add({
-      "sensorId": sensorsIdTC.text,
-      "value": [],
-      "time": [],
-    });
-
-    Transaction txn = db!.transaction('sensorsValue', 'readwrite');
-    ObjectStore store = txn.objectStore('sensorsValue');
-
-    await store.put(sensorsValueList, key);
-
-    debugPrint("Sukses input data Sensor Valuenya ke objekstore $key : \n -> $sensorsValueList");
-
-    await txn.completed;
   }
 
   Future saveSensorsData(int index) async {
@@ -249,11 +287,13 @@ class HomeController extends GetxController {
         await store.put(sensorsData, 'sensorsData');
         await txn.completed;
 
-        await saveSensorsValue('sv_$menuTitle');
+        await createSensorsStore('sv_$menuTitle');
 
         Get.back();
         sensorsIdTC.clear();
         prtgIpTC.clear();
+
+        isRefresh.value = true;
 
         update();
 
@@ -263,6 +303,57 @@ class HomeController extends GetxController {
       }
     } else {
       debugPrint("Tolong masukin sensor datanya dulu lah");
+    }
+  }
+
+  Future<dynamic> fetchApiData({
+    required String key,
+    required String objectName,
+    required int index,
+  }) async {
+    List<dynamic> getCurrentSensorValue = await getSensorsValue(objectName);
+    Map currentSensorValue = Map<String, dynamic>.from(getCurrentSensorValue[index]);
+
+    debugPrint("Ini adalah currentSensorValue-> \n$currentSensorValue");
+
+    if (isRefresh.isTrue) {
+      var dio = Dio();
+      var apiURL = "http://localhost:8080/backhaul/index.php?id=$key";
+
+      try {
+        final response = await dio.get(apiURL);
+        if (response.statusCode == 200 && response.data != null) {
+          Map<String, dynamic> responseData = Map<String, dynamic>.from(response.data);
+          debugPrint('berikut datanya : \n-> ${responseData['sensordata']}');
+
+          var apiValue = responseData['sensordata']['value'].toString().split(" ")[0];
+          debugPrint("ini valuenyaa cuy : ${Utils.formatRawApiValue(apiValue)}");
+
+          currentSensorValue['value'].add(Utils.formatRawApiValue(apiValue));
+
+          await saveSensorValue(
+            objectName,
+            index,
+            Utils.formatRawApiValue(apiValue),
+            responseData['sensordata']['name'],
+          );
+
+          getCurrentSensorValue = await getSensorsValue(objectName);
+
+          debugPrint(
+              "Ini currentSensorValue setelah di Add Value Baru-> \n${getCurrentSensorValue[index]}");
+
+          return Map<String, dynamic>.from(getCurrentSensorValue[index]);
+        } else {
+          return null;
+        }
+      } on DioException catch (e) {
+        debugPrint("Terdapat Eror : ${e.message}");
+      } finally {
+        isRefresh.value = false;
+      }
+    } else {
+      return currentSensorValue;
     }
   }
 }
