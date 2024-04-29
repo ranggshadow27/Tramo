@@ -18,8 +18,12 @@ class HomeController extends GetxController {
     super.onInit();
     await initDatabase();
 
+    activePage.value = await getLastActivePage();
+
     monitoringList.value = await getMonitoringGroup();
     sensorsData.value = await getSensorsData();
+    switchPage(activePage.value);
+    sensorsValue = await getSensorsValue(activeObjectName.value);
 
     isLoading = false;
     update();
@@ -41,21 +45,48 @@ class HomeController extends GetxController {
   String? sensorKey;
   int? sensorIndex;
 
-  // RxList sensorsData = [].obs;
+  List sensorsValue = [];
   RxMap sensorsData = {}.obs;
 
   switchNavbarType() {
     isNavbarShrink.value = !isNavbarShrink.value;
   }
 
-  switchPage(int indexPage) {
+  saveActivePage() async {
+    await Utils.transaction(
+      type: "save",
+      db: db!,
+      objectStore: 'lastPage',
+      action: 'readwrite',
+      data: activePage.value,
+    );
+  }
+
+  getLastActivePage() async {
+    var request = await Utils.transaction(
+      type: "get",
+      db: db!,
+      objectStore: 'lastPage',
+      action: 'readonly',
+      data: activePage.value,
+    );
+
+    return int.parse(request != null ? request.toString() : "0");
+  }
+
+  switchPage(int indexPage) async {
     activePage.value = indexPage;
+
+    saveActivePage();
     activeObjectName.value = "sv_${monitoringList[indexPage].toString().camelCase}";
 
     debugPrint(
         "Saat ini masuk page dari menu ${monitoringList[indexPage]} -- ${activeObjectName.value}");
 
     // isRefresh.value = true;
+
+    sensorsValue = await getSensorsValue(activeObjectName.value);
+
     update();
   }
 
@@ -94,20 +125,25 @@ class HomeController extends GetxController {
         if (!db.objectStoreNames.contains('sensorsValue')) {
           db.createObjectStore('sensorsValue', autoIncrement: true);
         }
+        if (!db.objectStoreNames.contains('lastPage')) {
+          db.createObjectStore('lastPage', autoIncrement: true);
+        }
       },
     );
   }
 
   Future<List<dynamic>> getMonitoringGroup() async {
-    var txn = db!.transaction('monitoringMenu', 'readonly');
-    var store = txn.objectStore('monitoringMenu');
-    var request = await store.getObject('monitoringMenuList');
-
-    await txn.completed;
+    var request = await Utils.transaction(
+      type: 'get',
+      db: db!,
+      objectStore: 'monitoringMenu',
+      object: 'monitoringMenuList',
+      action: 'readonly',
+    );
 
     debugPrint("Berikut monitoringMenunya :\n ${request.toString()}");
 
-    return request != null ? List.from(request as List) : [];
+    return List.from(request as List);
   }
 
   void saveMonitoringGroup() async {
@@ -119,23 +155,36 @@ class HomeController extends GetxController {
       if (!isDuplicate) {
         monitoringData.add(monitoringGroupTC.text);
 
-        var txn = db!.transaction('monitoringMenu', 'readwrite');
-        var store = txn.objectStore('monitoringMenu');
-        await store.put(monitoringData, 'monitoringMenuList');
-        await txn.completed;
+        await Utils.transaction(
+          type: "save",
+          db: db!,
+          objectStore: 'monitoringMenu',
+          action: 'readwrite',
+          object: 'monitoringMenuList',
+          data: monitoringData,
+        );
 
-        var txnSv = db!.transaction('sensorsValue', 'readwrite');
-        var storeSv = txnSv.objectStore('sensorsValue');
-        await storeSv.put([], sensorValueKey);
-        await txnSv.completed;
+        await Utils.transaction(
+          type: "save",
+          db: db!,
+          objectStore: 'sensorsValue',
+          action: 'readwrite',
+          object: sensorValueKey,
+          data: [],
+        );
 
         monitoringList.add(monitoringGroupTC.text);
+
+        if (monitoringList.length == 1) {
+          activeObjectName.value = "sv_${monitoringList[0].toString().camelCase}";
+        }
+
         update();
         Get.back();
         monitoringGroupTC.clear();
 
         debugPrint(
-            "Berhasil menambahkan menu $sensorValueKey berikut isinya \n ->${monitoringList.toString()}");
+            "Berhasil menambahkan menu ${activeObjectName.value} berikut isinya \n ->${monitoringList.toString()}");
       } else {
         debugPrint("Hmm.. menu sudah ada");
       }
@@ -146,6 +195,17 @@ class HomeController extends GetxController {
 
   Future getSensorsValue(String objectStore) async {
     List sensorsValueList = [];
+
+    if (objectStore == "" && monitoringList.isNotEmpty) {
+      objectStore = "sv_${monitoringList[0].toString().camelCase}";
+      debugPrint("Kayaknya data Sensor Valuenya $objectStore kosong 2 : \n -> $sensorsValue");
+    }
+
+    if (objectStore == "" && monitoringList.isEmpty) {
+      debugPrint("Kayaknya data Sensor Valuenya $objectStore kosong 2 : \n -> $sensorsValue");
+
+      return [];
+    }
 
     Transaction txn = db!.transaction('sensorsValue', 'readonly');
     ObjectStore store = txn.objectStore('sensorsValue');
@@ -166,7 +226,7 @@ class HomeController extends GetxController {
   }
 
   Future saveSensorValue(String objectName, int index, int value, String sensorName) async {
-    List sensorsValueList = await getSensorsValue(objectName);
+    List sensorsValueList = sensorsValue;
 
     DateTime now = DateTime.now();
     String timeValue = DateFormat.Hm().format(now);
@@ -187,6 +247,8 @@ class HomeController extends GetxController {
       await txn.completed;
 
       debugPrint("Ini sensorsValueList setelah di Add-> \n${sensorsValueList[index]}");
+      debugPrint("Ini sensorsValueList -> \n$sensorsValueList");
+      sensorsValue = sensorsValueList;
 
       return sensorsValueList[index];
     } else {
@@ -195,7 +257,7 @@ class HomeController extends GetxController {
   }
 
   Future createSensorsStore(String key) async {
-    List sensorsValueList = await getSensorsValue(key);
+    List sensorsValueList = sensorsValue;
 
     sensorsValueList.add({
       "sensorId": sensorsIdTC.text,
@@ -311,7 +373,9 @@ class HomeController extends GetxController {
     required String objectName,
     required int index,
   }) async {
-    List<dynamic> getCurrentSensorValue = await getSensorsValue(objectName);
+    List<dynamic> getCurrentSensorValue = sensorsValue;
+    debugPrint("Ini adalah getCurrentSensorValue-> \n$sensorsValue");
+
     Map currentSensorValue = Map<String, dynamic>.from(getCurrentSensorValue[index]);
 
     debugPrint("Ini adalah currentSensorValue-> \n$currentSensorValue");
@@ -322,6 +386,7 @@ class HomeController extends GetxController {
 
       try {
         final response = await dio.get(apiURL);
+
         if (response.statusCode == 200 && response.data != null) {
           Map<String, dynamic> responseData = Map<String, dynamic>.from(response.data);
           debugPrint('berikut datanya : \n-> ${responseData['sensordata']}');
@@ -329,7 +394,7 @@ class HomeController extends GetxController {
           var apiValue = responseData['sensordata']['value'].toString().split(" ")[0];
           debugPrint("ini valuenyaa cuy : ${Utils.formatRawApiValue(apiValue)}");
 
-          currentSensorValue['value'].add(Utils.formatRawApiValue(apiValue));
+          // currentSensorValue['value'].add(Utils.formatRawApiValue(apiValue));
 
           await saveSensorValue(
             objectName,
@@ -338,12 +403,11 @@ class HomeController extends GetxController {
             responseData['sensordata']['name'],
           );
 
-          getCurrentSensorValue = await getSensorsValue(objectName);
+          getCurrentSensorValue = sensorsValue;
 
-          debugPrint(
-              "Ini currentSensorValue setelah di Add Value Baru-> \n${getCurrentSensorValue[index]}");
+          debugPrint("Ini currentSensorValue setelah di Add Value Baru-> \n${sensorsValue[index]}");
 
-          return Map<String, dynamic>.from(getCurrentSensorValue[index]);
+          return Map<String, dynamic>.from(sensorsValue[index]);
         } else {
           return null;
         }

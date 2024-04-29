@@ -139,7 +139,7 @@ class SensorsPage extends StatelessWidget {
                           Map<String, dynamic> data = snapshot.data;
                           return Center(
                             child: Text(
-                              "Sensor Id : ${sensorId[index]}\n-> Name : ${data['name']}\n-> Value : ${data['value'].last}\n-> Time : ${data['time'].last}",
+                              "Sensor Id : ${sensorId[index]}\n-> Name : ${data['name']}\n-> Value : ${data['value']}\n-> Time : ${data['time']}",
                             ),
                           );
                         },
