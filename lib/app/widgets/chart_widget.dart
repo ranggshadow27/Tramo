@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
+import '../constants/themes/app_colors.dart';
+
 class ChartWidget extends StatelessWidget {
   final GetxController controller;
 
   String? chartTitle;
-  RxList mainData;
-  RxList timeData;
-  RxInt latestData;
+  List mainData;
+  List timeData;
   int currentThresold;
 
   ChartWidget({
@@ -17,242 +18,244 @@ class ChartWidget extends StatelessWidget {
     this.chartTitle,
     required this.mainData,
     required this.timeData,
-    required this.latestData,
     required this.currentThresold,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => mainData.isEmpty
-          ? const CircularProgressIndicator()
-          : Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: const Color.fromARGB(255, 21, 21, 22),
-                ),
-                height: 300,
-                padding: const EdgeInsets.only(top: 20, bottom: 20, right: 30, left: 24),
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(
-                      show: true,
-                      drawHorizontalLine: true,
-                      getDrawingHorizontalLine: (value) => FlLine(
-                        color: Colors.cyan.withOpacity(.2),
-                        strokeWidth: 1,
-                      ),
-                      drawVerticalLine: true,
-                      getDrawingVerticalLine: (value) => FlLine(
-                        color: Colors.cyan.withOpacity(.2),
-                        strokeWidth: 1,
-                      ),
-                      horizontalInterval: 50000,
-                    ),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      topTitles: AxisTitles(
-                        axisNameSize: 30,
-                        axisNameWidget: Text(
-                          chartTitle ?? "no data",
-                          style: const TextStyle(
-                              fontSize: 12.0,
-                              color: Color.fromARGB(255, 233, 233, 233),
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      rightTitles: AxisTitles(),
-                      leftTitles: AxisTitles(
-                        axisNameSize: 12,
-                        axisNameWidget: const Text(
-                          "Traffic Total (Kbps)",
-                          style: TextStyle(
-                            fontSize: 12.0,
-                            color: Color.fromARGB(255, 215, 215, 215),
-                          ),
-                        ),
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          interval: 50000,
-                          getTitlesWidget: (value, meta) {
-                            var maxVal = mainData.reduce(
-                                  (previousValue, element) => previousValue > element
-                                      ? previousValue.toDouble()
-                                      : element.toDouble(),
-                                ) +
-                                50000;
+    int latestData = mainData[mainData.length - 1];
 
-                            for (var i = 0; i < mainData.length; i++) {
-                              if (value == 0) {
-                                return const SizedBox();
-                              }
+    var maxVal = mainData.reduce(
+      (previousValue, element) =>
+          previousValue > element ? previousValue.toDouble() : element.toDouble(),
+    );
 
-                              if (value == maxVal) {
-                                return const SizedBox();
-                              }
-                            }
+    if (maxVal <= 20000) {
+      maxVal += 2000;
+    } else if (maxVal >= 800000) {
+      maxVal += 200000;
+    } else {
+      maxVal += 100000;
+    }
 
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: Text(
-                                "${(value).toInt() ~/ 1000}K",
-                                textAlign: TextAlign.right,
-                                style: const TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 215, 215, 215),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          interval: 1,
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            TextStyle style = const TextStyle(
-                              fontSize: 12.0,
-                              color: Color.fromARGB(255, 215, 215, 215),
-                              fontWeight: FontWeight.bold,
-                            );
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: BaseColors.navbarBackground.withOpacity(.5),
+      ),
+      height: 300,
+      padding: const EdgeInsets.only(top: 20, bottom: 20, right: 30, left: 24),
+      child: LineChart(
+        LineChartData(
+          gridData: FlGridData(
+            show: true,
+            drawHorizontalLine: true,
+            getDrawingHorizontalLine: (value) => FlLine(
+              color: Colors.cyan.withOpacity(.2),
+              strokeWidth: .3,
+            ),
+            drawVerticalLine: true,
+            getDrawingVerticalLine: (value) => FlLine(
+              color: Colors.cyan.withOpacity(.2),
+              strokeWidth: .3,
+            ),
+            horizontalInterval: latestData >= 700000
+                ? 200000
+                : latestData <= 350000
+                    ? latestData <= 20000
+                        ? 2000
+                        : 50000
+                    : 100000,
+          ),
+          titlesData: FlTitlesData(
+            show: true,
+            topTitles: AxisTitles(
+              axisNameSize: 15,
+              axisNameWidget: Text(
+                "$chartTitle (${mainData.length})" ?? "no data",
+                style: const TextStyle(
+                    fontSize: 10.0,
+                    color: Color.fromARGB(255, 233, 233, 233),
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            rightTitles: AxisTitles(),
+            leftTitles: AxisTitles(
+              axisNameSize: 15,
+              axisNameWidget: const Text(
+                "Total Traffic (Kbps)",
+                style: const TextStyle(
+                    fontSize: 8.0,
+                    color: Color.fromARGB(255, 233, 233, 233),
+                    fontWeight: FontWeight.bold),
+              ),
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                interval: latestData >= 700000
+                    ? 200000
+                    : latestData <= 350000 && latestData > 20000
+                        ? 50000
+                        : latestData <= 20000
+                            ? 2000
+                            : 100000,
+                getTitlesWidget: (value, meta) {
+                  for (var i = 0; i < mainData.length; i++) {
+                    if (value == 0) {
+                      return const SizedBox();
+                    }
 
-                            for (var i = 0; i < timeData.length; i++) {
-                              if (value.toInt() == 0 && timeData.length < 10) {
-                                return const SizedBox();
-                              }
+                    if (value == maxVal) {
+                      return const SizedBox();
+                    }
+                  }
 
-                              if (value.toInt() == i &&
-                                  int.parse(timeData[i].split(":")[1]) % 5 != 0) {
-                                return const SizedBox();
-                              }
-
-                              if (value.toInt() == 1 && timeData.length < 10) {
-                                return RotatedBox(
-                                  quarterTurns: 3,
-                                  child: Text(
-                                    timeData[i],
-                                    style: style,
-                                  ),
-                                );
-                              }
-
-                              if (value.toInt() == i &&
-                                  int.parse(timeData[i].split(":")[1]) % 5 == 0) {
-                                return RotatedBox(
-                                  quarterTurns: 3,
-                                  child: Text(timeData[i], style: style),
-                                );
-                              }
-
-                              if (value.toInt() == i) {
-                                return RotatedBox(
-                                  quarterTurns: 3,
-                                  child: Text(timeData[i], style: style),
-                                );
-                              }
-                            }
-
-                            return Text(value.toString());
-                          },
-                        ),
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Text(
+                      "${(value).toInt() ~/ 1000}K",
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontSize: 10.0,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 215, 215, 215),
                       ),
                     ),
-                    maxY: mainData.reduce(
-                          (previousValue, element) => previousValue > element
-                              ? previousValue.toDouble()
-                              : element.toDouble(),
-                        ) +
-                        50000.toDouble(),
-                    minY: 0,
-                    maxX: mainData.length.toDouble() - 1,
-                    minX: 0,
-                    backgroundColor: Color.fromARGB(255, 21, 21, 22),
-                    clipData: FlClipData.all(),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border.all(
-                        color: Colors.cyan.withOpacity(.2),
-                        width: 1,
-                      ),
-                    ),
-                    lineTouchData: LineTouchData(
-                      enabled: true,
-                      touchTooltipData: LineTouchTooltipData(
-                        tooltipBgColor: Color.fromARGB(255, 33, 35, 35).withOpacity(.7),
-                        getTooltipItems: (touchedSpots) {
-                          return touchedSpots.map((e) {
-                            final flSpot = e;
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                interval: 1,
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: (value, meta) {
+                  TextStyle style = const TextStyle(
+                    fontSize: 10.0,
+                    color: Color.fromARGB(255, 215, 215, 215),
+                    fontWeight: FontWeight.bold,
+                  );
 
-                            return LineTooltipItem(
-                              "- Time: ${timeData[flSpot.x.toInt()]} WIB\n- Traffic: ${NumberFormat.decimalPattern().format(flSpot.y.toInt())} Kbps",
-                              const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.left,
-                            );
-                          }).toList();
-                        },
-                      ),
+                  for (var i = 0; i < timeData.length; i++) {
+                    if (value.toInt() == 0 && timeData.length < 10) {
+                      return const SizedBox();
+                    }
+
+                    if (value.toInt() == i && int.parse(timeData[i].split(":")[1]) % 5 != 0) {
+                      return const SizedBox();
+                    }
+
+                    if (value.toInt() == 1 && timeData.length < 10) {
+                      return RotatedBox(
+                        quarterTurns: 3,
+                        child: Text(
+                          timeData[i],
+                          style: style,
+                        ),
+                      );
+                    }
+
+                    if (value.toInt() == i && int.parse(timeData[i].split(":")[1]) % 5 == 0) {
+                      return RotatedBox(
+                        quarterTurns: 3,
+                        child: Text(timeData[i], style: style),
+                      );
+                    }
+
+                    if (value.toInt() == i) {
+                      return RotatedBox(
+                        quarterTurns: 3,
+                        child: Text(timeData[i], style: style),
+                      );
+                    }
+                  }
+
+                  return Text(value.toString());
+                },
+              ),
+            ),
+          ),
+          maxY: maxVal.toDouble(),
+          minY: 0,
+          maxX: mainData.length.toDouble() - 1,
+          minX: 0,
+          backgroundColor: BaseColors.primaryBackground,
+          clipData: FlClipData.all(),
+          borderData: FlBorderData(
+            show: true,
+            border: Border.all(
+              color: Colors.cyan.withOpacity(.2),
+              width: 1,
+            ),
+          ),
+          lineTouchData: LineTouchData(
+            enabled: true,
+            touchTooltipData: LineTouchTooltipData(
+              tooltipBgColor: Color.fromARGB(255, 33, 35, 35).withOpacity(.7),
+              getTooltipItems: (touchedSpots) {
+                return touchedSpots.map((e) {
+                  final flSpot = e;
+
+                  return LineTooltipItem(
+                    "- Time: ${timeData[flSpot.x.toInt()]} WIB\n- Traffic: ${NumberFormat.decimalPattern().format(flSpot.y.toInt())} Kbps",
+                    const TextStyle(
+                      fontSize: 12.0,
+                      color: Colors.white,
                     ),
-                    lineBarsData: [
-                      LineChartBarData(
-                        dotData: FlDotData(show: false),
-                        spots: List.generate(
-                          mainData.length,
-                          (index) => FlSpot(index.toDouble(), mainData[index].toDouble()),
-                        ),
-                        color: latestData.value >= currentThresold
-                            ? const Color.fromARGB(255, 18, 216, 219)
-                            : latestData.value < currentThresold && latestData.value > 4000
-                                ? const Color.fromARGB(255, 213, 203, 15)
-                                : const Color.fromARGB(255, 215, 0, 0),
-                        isCurved: true,
-                        barWidth: 3,
-                        isStrokeCapRound: true,
-                        belowBarData: BarAreaData(
-                          show: true,
-                          gradient: LinearGradient(
-                            colors: latestData.value >= currentThresold
-                                ? [
-                                    const Color.fromARGB(255, 18, 216, 219).withOpacity(.5),
-                                    const Color.fromARGB(255, 18, 216, 219).withOpacity(.25),
-                                    const Color.fromARGB(255, 18, 216, 219).withOpacity(.05),
-                                    const Color.fromARGB(255, 18, 216, 219).withOpacity(0),
-                                  ]
-                                : latestData.value < currentThresold &&
-                                        latestData.value > currentThresold / 2
-                                    ? [
-                                        const Color.fromARGB(255, 213, 203, 15).withOpacity(.5),
-                                        const Color.fromARGB(255, 213, 203, 15).withOpacity(.25),
-                                        const Color.fromARGB(255, 213, 203, 15).withOpacity(0.05),
-                                        const Color.fromARGB(255, 213, 203, 15).withOpacity(0),
-                                      ]
-                                    : [
-                                        const Color.fromARGB(255, 215, 0, 0).withOpacity(.5),
-                                        const Color.fromARGB(255, 215, 0, 0).withOpacity(.25),
-                                        const Color.fromARGB(255, 215, 0, 0).withOpacity(.05),
-                                        const Color.fromARGB(255, 215, 0, 0).withOpacity(0),
-                                      ],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  curve: Curves.bounceIn,
-                  duration: const Duration(milliseconds: 200),
+                    textAlign: TextAlign.left,
+                  );
+                }).toList();
+              },
+            ),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              dotData: FlDotData(show: false),
+              spots: List.generate(
+                mainData.length,
+                (index) => FlSpot(index.toDouble(), mainData[index].toDouble()),
+              ),
+              color: latestData >= currentThresold
+                  ? AccentColors.tealColor
+                  : latestData < currentThresold && latestData > currentThresold / 2
+                      ? AccentColors.yellowColor
+                      : AccentColors.maroonColor,
+              isCurved: true,
+              barWidth: 3,
+              isStrokeCapRound: true,
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  colors: latestData >= currentThresold
+                      ? [
+                          AccentColors.tealColor.withOpacity(.5),
+                          AccentColors.tealColor.withOpacity(.25),
+                          AccentColors.tealColor.withOpacity(.05),
+                          AccentColors.tealColor.withOpacity(0),
+                        ]
+                      : latestData < currentThresold && latestData > currentThresold / 2
+                          ? [
+                              AccentColors.yellowColor.withOpacity(.5),
+                              AccentColors.yellowColor.withOpacity(.25),
+                              AccentColors.yellowColor.withOpacity(0.05),
+                              AccentColors.yellowColor.withOpacity(0),
+                            ]
+                          : [
+                              AccentColors.maroonColor.withOpacity(.5),
+                              AccentColors.maroonColor.withOpacity(.25),
+                              AccentColors.maroonColor.withOpacity(.05),
+                              AccentColors.maroonColor.withOpacity(0),
+                            ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 }

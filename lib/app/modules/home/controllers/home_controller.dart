@@ -1,5 +1,7 @@
 // import 'package:flutter/material.dart';
 
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -22,7 +24,11 @@ class HomeController extends GetxController {
 
     monitoringList.value = await getMonitoringGroup();
     sensorsData.value = await getSensorsData();
-    switchPage(activePage.value);
+
+    if (monitoringList.isNotEmpty) {
+      switchPage(activePage.value);
+    }
+
     sensorsValue = await getSensorsValue(activeObjectName.value);
 
     isLoading = false;
@@ -37,6 +43,7 @@ class HomeController extends GetxController {
 
   RxBool isRefresh = true.obs;
   bool isLoading = true;
+  bool isTimerRunning = false;
   RxBool isNavbarShrink = true.obs;
   RxBool isWideWindow = true.obs;
   RxInt activePage = 0.obs;
@@ -47,6 +54,10 @@ class HomeController extends GetxController {
 
   List sensorsValue = [];
   RxMap sensorsData = {}.obs;
+
+  int totalDataFetched = 0;
+
+  Timer? timer;
 
   switchNavbarType() {
     isNavbarShrink.value = !isNavbarShrink.value;
@@ -71,10 +82,21 @@ class HomeController extends GetxController {
       data: activePage.value,
     );
 
-    return int.parse(request != null ? request.toString() : "0");
+    int lastPage = int.parse(request != null ? request.toString() : "0");
+
+    debugPrint("LAST PAGENYA : $lastPage");
+
+    return lastPage;
   }
 
   switchPage(int indexPage) async {
+    // if (timer != null && timer!.isActive) {
+    //   timer!.cancel();
+
+    //   isTimerRunning = false;
+    //   debugPrint("Timer sudah dikensel anjas");
+    // }
+
     activePage.value = indexPage;
 
     saveActivePage();
@@ -82,8 +104,6 @@ class HomeController extends GetxController {
 
     debugPrint(
         "Saat ini masuk page dari menu ${monitoringList[indexPage]} -- ${activeObjectName.value}");
-
-    // isRefresh.value = true;
 
     sensorsValue = await getSensorsValue(activeObjectName.value);
 
@@ -142,6 +162,10 @@ class HomeController extends GetxController {
     );
 
     debugPrint("Berikut monitoringMenunya :\n ${request.toString()}");
+
+    if (request == null) {
+      return [];
+    }
 
     return List.from(request as List);
   }
@@ -238,6 +262,11 @@ class HomeController extends GetxController {
     if (senValLength.isEmpty || senValLength.last != timeValue) {
       Transaction txn = db!.transaction('sensorsValue', 'readwrite');
       ObjectStore store = txn.objectStore('sensorsValue');
+
+      if (sensorsValueList.length >= 60) {
+        sensorsValueList[index]['value'].removeAt(0);
+        sensorsValueList[index]['time'].removeAt(0);
+      }
 
       sensorsValueList[index]['value'].add(value);
       sensorsValueList[index].addAll({'name': sensorName});
@@ -373,10 +402,7 @@ class HomeController extends GetxController {
     required String objectName,
     required int index,
   }) async {
-    List<dynamic> getCurrentSensorValue = sensorsValue;
-    debugPrint("Ini adalah getCurrentSensorValue-> \n$sensorsValue");
-
-    Map currentSensorValue = Map<String, dynamic>.from(getCurrentSensorValue[index]);
+    Map currentSensorValue = Map<String, dynamic>.from(sensorsValue[index]);
 
     debugPrint("Ini adalah currentSensorValue-> \n$currentSensorValue");
 
@@ -394,8 +420,6 @@ class HomeController extends GetxController {
           var apiValue = responseData['sensordata']['value'].toString().split(" ")[0];
           debugPrint("ini valuenyaa cuy : ${Utils.formatRawApiValue(apiValue)}");
 
-          // currentSensorValue['value'].add(Utils.formatRawApiValue(apiValue));
-
           await saveSensorValue(
             objectName,
             index,
@@ -403,9 +427,16 @@ class HomeController extends GetxController {
             responseData['sensordata']['name'],
           );
 
-          getCurrentSensorValue = sensorsValue;
-
           debugPrint("Ini currentSensorValue setelah di Add Value Baru-> \n${sensorsValue[index]}");
+
+          if (isTimerRunning == false) {
+            timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+              isRefresh.value = true;
+              update();
+            });
+
+            isTimerRunning = true;
+          }
 
           return Map<String, dynamic>.from(sensorsValue[index]);
         } else {
@@ -414,6 +445,9 @@ class HomeController extends GetxController {
       } on DioException catch (e) {
         debugPrint("Terdapat Eror : ${e.message}");
       } finally {
+        totalDataFetched++;
+
+        debugPrint("Data sudah terget ke $totalDataFetched");
         isRefresh.value = false;
       }
     } else {

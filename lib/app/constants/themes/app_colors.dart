@@ -14,7 +14,9 @@ class AccentColors {
   static const Color tealColor = Color(0xFF16ACAC);
   static const Color brownColor = Color(0xFF936A00);
   static const Color greenColor = Color(0xFF007419);
-  static const Color maroonColor = Color(0xFF6D0002);
+  static const Color maroonColor = Color.fromARGB(255, 163, 0, 3);
+
+  // static const Color maroonColor = Color(0xFF6D0002);
   static const Color purpleColor = Color(0xFF530086);
   static const Color blueColor = Color(0xFF006ED3);
   static const Color yellowColor = Color(0xFFFCD46F);

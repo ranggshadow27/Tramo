@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import 'package:tramo/app/widgets/add_sensors_button.dart';
+import 'package:tramo/app/widgets/chart_widget.dart';
 
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
@@ -98,15 +99,11 @@ class SensorsPage extends StatelessWidget {
                     itemCount: controller.sensorsData[menuTitle]['Id'].length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: constraints.maxWidth <= 720 ? 2 : 3,
-                      childAspectRatio: constraints.maxWidth <= 720 ? 1.5 : 2,
+                      childAspectRatio: constraints.maxWidth <= 720 ? 1.3 : 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                     ),
                     itemBuilder: (context, index) => Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: AccentColors.tealColor,
-                      ),
                       child: FutureBuilder(
                         future: controller.fetchApiData(
                           index: index,
@@ -116,11 +113,11 @@ class SensorsPage extends StatelessWidget {
                               : controller.activeObjectName.value,
                         ),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
+                          // if (snapshot.connectionState == ConnectionState.waiting) {
+                          //   return const Center(
+                          //     child: CircularProgressIndicator(),
+                          //   );
+                          // }
 
                           if (snapshot.hasError) {
                             return Center(
@@ -137,10 +134,12 @@ class SensorsPage extends StatelessWidget {
                           }
 
                           Map<String, dynamic> data = snapshot.data;
-                          return Center(
-                            child: Text(
-                              "Sensor Id : ${sensorId[index]}\n-> Name : ${data['name']}\n-> Value : ${data['value']}\n-> Time : ${data['time']}",
-                            ),
+                          return ChartWidget(
+                            controller: controller,
+                            chartTitle: data['name'],
+                            mainData: data['value'],
+                            timeData: data['time'],
+                            currentThresold: 100000,
                           );
                         },
                       ),
