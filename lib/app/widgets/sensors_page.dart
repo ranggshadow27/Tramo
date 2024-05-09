@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import 'package:tramo/app/widgets/add_sensors_button.dart';
@@ -103,46 +105,82 @@ class SensorsPage extends StatelessWidget {
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                     ),
-                    itemBuilder: (context, index) => Container(
-                      child: FutureBuilder(
-                        future: controller.fetchApiData(
-                          index: index,
-                          key: sensorId[index].toString(),
-                          objectName: controller.activeObjectName.isEmpty
-                              ? "sv_$firstMonitoringMenu"
-                              : controller.activeObjectName.value,
-                        ),
-                        builder: (context, snapshot) {
-                          // if (snapshot.connectionState == ConnectionState.waiting) {
-                          //   return const Center(
-                          //     child: CircularProgressIndicator(),
-                          //   );
-                          // }
-
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Text("EROR COK : ${snapshot.error}"),
-                            );
-                          }
-
-                          if (!snapshot.hasData || snapshot.data == null) {
-                            return Center(
-                              child: Text(
-                                "Sensor Id : ${sensorId[index]} \nTerjadi Kesalahan Euy! Sensor tidak ada",
-                              ),
-                            );
-                          }
-
-                          Map<String, dynamic> data = snapshot.data;
-                          return ChartWidget(
-                            controller: controller,
-                            chartTitle: data['name'],
-                            mainData: data['value'],
-                            timeData: data['time'],
-                            currentThresold: 100000,
-                          );
-                        },
+                    itemBuilder: (context, index) => FutureBuilder(
+                      future: controller.fetchApiData(
+                        index: index,
+                        key: sensorId[index].toString(),
+                        objectName: controller.activeObjectName.isEmpty
+                            ? "sv_$firstMonitoringMenu"
+                            : controller.activeObjectName.value,
                       ),
+                      builder: (context, snapshot) {
+                        // if (snapshot.connectionState == ConnectionState.waiting) {
+                        //   return const Center(
+                        //     child: CircularProgressIndicator(),
+                        //   );
+                        // }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text("EROR COK : ${snapshot.error}"),
+                          );
+                        }
+
+                        if (!snapshot.hasData || snapshot.data == null) {
+                          return Center(
+                            child: Text(
+                              "Sensor Id : ${sensorId[index]} \nTerjadi Kesalahan Euy! Sensor tidak ada",
+                            ),
+                          );
+                        }
+
+                        Map<String, dynamic> data = snapshot.data;
+                        return Stack(
+                          children: [
+                            ChartWidget(
+                              controller: controller,
+                              chartTitle: data['name'],
+                              mainData: data['value'],
+                              timeData: data['time'],
+                            ),
+                            IconButton.outlined(
+                              onPressed: () => showDialog(
+                                context: context,
+                                builder: (context) {
+                                  String pageName =
+                                      controller.monitoringList[activePage].toString().camelCase!;
+
+                                  controller.sensorsIdTC.text =
+                                      controller.sensorsData[pageName]['Id'][index].toString();
+
+                                  controller.prtgIpTC.text =
+                                      controller.sensorsData[pageName]['prtgIp'][index].toString();
+
+                                  return updateDialog(context, index);
+                                },
+                              ),
+                              iconSize: 12,
+                              splashRadius: 12,
+                              icon: const Icon(
+                                FontAwesomeIcons.penToSquare,
+                                color: AccentColors.tealColor,
+                              ),
+                            ),
+                            Positioned(
+                              top: 30,
+                              child: IconButton.outlined(
+                                onPressed: () => controller.notificationAlert(),
+                                iconSize: 12,
+                                splashRadius: 12,
+                                icon: const Icon(
+                                  FontAwesomeIcons.soundcloud,
+                                  color: AccentColors.tealColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 );
@@ -150,6 +188,46 @@ class SensorsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget updateDialog(BuildContext context, int index) {
+    return Dialog(
+      child: IntrinsicWidth(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * .5,
+          child: Column(
+            children: [
+              const Text("Please insert the Sensor Id from PRTG"),
+              SizedBox(
+                width: 300,
+                child: TextField(
+                  controller: controller.sensorsIdTC,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text("Please insert the PRTG IP"),
+              SizedBox(
+                width: 300,
+                child: TextField(
+                  controller: controller.prtgIpTC,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  await controller.updateSensor(index);
+                },
+                child: const Text("Submit"),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

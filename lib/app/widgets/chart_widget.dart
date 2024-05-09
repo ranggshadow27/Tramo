@@ -11,14 +11,12 @@ class ChartWidget extends StatelessWidget {
   String? chartTitle;
   List mainData;
   List timeData;
-  int currentThresold;
 
   ChartWidget({
     required this.controller,
     this.chartTitle,
     required this.mainData,
     required this.timeData,
-    required this.currentThresold,
     super.key,
   });
 
@@ -31,12 +29,18 @@ class ChartWidget extends StatelessWidget {
           previousValue > element ? previousValue.toDouble() : element.toDouble(),
     );
 
+    double currentThresold = maxVal * .75;
+
     if (maxVal <= 20000) {
       maxVal += 2000;
     } else if (maxVal >= 800000) {
       maxVal += 200000;
     } else {
       maxVal += 100000;
+    }
+
+    if (mainData.isEmpty) {
+      return const CircularProgressIndicator();
     }
 
     return Container(
@@ -60,10 +64,10 @@ class ChartWidget extends StatelessWidget {
               color: Colors.cyan.withOpacity(.2),
               strokeWidth: .3,
             ),
-            horizontalInterval: latestData >= 700000
+            horizontalInterval: maxVal >= 800000
                 ? 200000
-                : latestData <= 350000
-                    ? latestData <= 20000
+                : maxVal <= 350000
+                    ? maxVal <= 20000
                         ? 2000
                         : 50000
                     : 100000,
@@ -71,13 +75,14 @@ class ChartWidget extends StatelessWidget {
           titlesData: FlTitlesData(
             show: true,
             topTitles: AxisTitles(
-              axisNameSize: 15,
+              axisNameSize: 23,
               axisNameWidget: Text(
                 "$chartTitle (${mainData.length})" ?? "no data",
                 style: const TextStyle(
-                    fontSize: 10.0,
-                    color: Color.fromARGB(255, 233, 233, 233),
-                    fontWeight: FontWeight.bold),
+                  fontSize: 12.0,
+                  color: BaseColors.primaryText,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             rightTitles: AxisTitles(),
@@ -85,19 +90,20 @@ class ChartWidget extends StatelessWidget {
               axisNameSize: 15,
               axisNameWidget: const Text(
                 "Total Traffic (Kbps)",
-                style: const TextStyle(
-                    fontSize: 8.0,
-                    color: Color.fromARGB(255, 233, 233, 233),
-                    fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 8.0,
+                  color: BaseColors.primaryText,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 40,
-                interval: latestData >= 700000
+                interval: maxVal >= 800000
                     ? 200000
-                    : latestData <= 350000 && latestData > 20000
+                    : maxVal <= 350000 && maxVal > 20000
                         ? 50000
-                        : latestData <= 20000
+                        : maxVal <= 20000
                             ? 2000
                             : 100000,
                 getTitlesWidget: (value, meta) {
@@ -130,7 +136,7 @@ class ChartWidget extends StatelessWidget {
               sideTitles: SideTitles(
                 interval: 1,
                 showTitles: true,
-                reservedSize: 40,
+                reservedSize: 30,
                 getTitlesWidget: (value, meta) {
                   TextStyle style = const TextStyle(
                     fontSize: 10.0,

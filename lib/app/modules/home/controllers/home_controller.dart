@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -30,6 +31,7 @@ class HomeController extends GetxController {
     }
 
     sensorsValue = await getSensorsValue(activeObjectName.value);
+    await notificationAlert();
 
     isLoading = false;
     update();
@@ -39,11 +41,15 @@ class HomeController extends GetxController {
   TextEditingController sensorsIdTC = TextEditingController();
   TextEditingController prtgIpTC = TextEditingController();
 
+  final audioplayer = AudioPlayer();
+
   RxList monitoringList = [].obs;
 
-  RxBool isRefresh = true.obs;
   bool isLoading = true;
   bool isTimerRunning = false;
+  bool isNotificationPlay = false;
+
+  RxBool isRefresh = true.obs;
   RxBool isNavbarShrink = true.obs;
   RxBool isWideWindow = true.obs;
   RxInt activePage = 0.obs;
@@ -263,7 +269,15 @@ class HomeController extends GetxController {
       Transaction txn = db!.transaction('sensorsValue', 'readwrite');
       ObjectStore store = txn.objectStore('sensorsValue');
 
-      if (sensorsValueList.length >= 60) {
+      int maxValue = 30;
+      int countMaxLength = sensorsValueList[index]['value'].length - maxValue;
+
+      if (sensorsValueList[index]['value'].length > maxValue) {
+        sensorsValueList[index]['value'].removeRange(0, countMaxLength);
+        sensorsValueList[index]['time'].removeRange(0, countMaxLength);
+      }
+
+      if (sensorsValueList[index]['value'].length == maxValue) {
         sensorsValueList[index]['value'].removeAt(0);
         sensorsValueList[index]['time'].removeAt(0);
       }
@@ -430,8 +444,11 @@ class HomeController extends GetxController {
           debugPrint("Ini currentSensorValue setelah di Add Value Baru-> \n${sensorsValue[index]}");
 
           if (isTimerRunning == false) {
-            timer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+            timer = Timer.periodic(const Duration(seconds: 20), (timer) async {
               isRefresh.value = true;
+              debugPrint("IS NOTIFICATION IS ACTIVE? ---------------");
+              await notificationAlert();
+
               update();
             });
 
@@ -453,5 +470,95 @@ class HomeController extends GetxController {
     } else {
       return currentSensorValue;
     }
+  }
+
+  updateSensor(int index) async {
+    String menuTitle = monitoringList[activePage.value].toString().camelCase!;
+    Map<String, dynamic> keyedSensorsData = await getSensorsData(key: menuTitle);
+
+    keyedSensorsData['Id'][index] = (int.parse(sensorsIdTC.text));
+    keyedSensorsData['prtgIp'][index] = (int.parse(prtgIpTC.text));
+
+    sensorsData.addAll({menuTitle: keyedSensorsData});
+
+    isRefresh.value = true;
+
+    await Utils.transaction(
+      type: "save",
+      db: db!,
+      objectStore: "sensorsData",
+      action: 'readwrite',
+      data: sensorsData,
+    );
+
+    sensorsValue[index]['sensorId'] = (int.parse(sensorsIdTC.text));
+    sensorsValue[index]['name'] = "Updating sensor from server, Pls wait..";
+    sensorsValue[index]['value'] = [];
+    sensorsValue[index]['time'] = [];
+
+    await Utils.transaction(
+      type: "save",
+      db: db!,
+      objectStore: "sensorsValue",
+      action: 'readwrite',
+      data: sensorsValue,
+      object: activeObjectName.value,
+    );
+
+    sensorsIdTC.clear();
+    prtgIpTC.clear();
+    Get.back();
+
+    update();
+  }
+
+  notificationAlert() async {
+    // await audioplayer.setPlayerMode(PlayerMode.lowLatency);
+
+    debugPrint("----------------------> Thresold Logic");
+
+    for (var i = 0; i < sensorsValue.length; i++) {
+      int currentData = sensorsValue[i]["value"].last;
+
+      List reversedData = List.from(sensorsValue[i]["value"].reversed);
+      List lastestData = [];
+
+      if (reversedData.length >= 3) {
+        lastestData = reversedData.sublist(0, 3);
+      } else {
+        lastestData = reversedData.sublist(0, reversedData.length);
+      }
+
+      // double maxlastestData = lastestData.fold(0, (prev, element) => prev + element);
+
+      double maxlastestData = lastestData.fold(
+          0, (previousValue, element) => previousValue > element ? previousValue : element);
+      double avgData = maxlastestData;
+
+      // int maxVal = sensorsValue.reduce((prev, element) => null);
+
+      double thresoldMajor = avgData * 0.5;
+      double thresoldMinor = avgData * 0.85;
+
+      debugPrint("jumlah lastestData data ke $i = ${lastestData.length}");
+      debugPrint("avgData ke $i = $avgData");
+      debugPrint("currentData ke $i = $currentData");
+
+      debugPrint("thresoldMinor data ke $i = $thresoldMinor");
+      debugPrint("thresoldMajor data ke $i = $thresoldMajor");
+
+      if (isNotificationPlay == false) {
+        if (currentData <= thresoldMajor || currentData < 10) {
+          debugPrint("----------------------> Playing Major Alaram");
+          await audioplayer.play(DeviceFileSource('/assets/sounds/major_alarm.wav'), volume: .8);
+        }
+
+        if (currentData <= thresoldMinor && currentData >= thresoldMajor) {
+          await audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
+        }
+      }
+    }
+
+    isNotificationPlay = false;
   }
 }
