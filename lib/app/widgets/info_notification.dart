@@ -7,18 +7,17 @@ import 'package:tramo/app/constants/themes/font_style.dart';
 
 import '../constants/themes/app_colors.dart';
 
-showErrorNotification({
+showInfoNotification({
   required BuildContext context,
-  required String type,
   required String description,
   title = "Alert",
 }) {
   return ElegantNotification(
-    icon: Icon(
+    icon: const Icon(
       FontAwesomeIcons.circleExclamation,
-      color: type == "minor" ? AccentColors.warningColor : AccentColors.redColor,
+      color: AccentColors.blueColor,
     ),
-    progressIndicatorColor: type == "minor" ? AccentColors.warningColor : AccentColors.redColor,
+    progressIndicatorColor: AccentColors.blueColor,
     width: 360,
     stackedOptions: StackedOptions(
       key: 'topRight',

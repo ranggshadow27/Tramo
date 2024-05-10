@@ -1,12 +1,8 @@
-// import 'package:flutter/material.dart';
-
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
-import 'package:elegant_notification/elegant_notification.dart';
-import 'package:elegant_notification/resources/arrays.dart';
-import 'package:elegant_notification/resources/stacked_options.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:idb_shim/idb.dart';
@@ -16,6 +12,7 @@ import 'package:tramo/app/constants/themes/app_colors.dart';
 import 'package:tramo/app/constants/themes/font_style.dart';
 import 'package:tramo/app/utils/utils.dart';
 import 'package:tramo/app/widgets/error_notification.dart';
+import 'package:tramo/app/widgets/info_notification.dart';
 
 class HomeController extends GetxController {
   IdbFactory databaseFactory = getIdbFactory()!;
@@ -257,6 +254,7 @@ class HomeController extends GetxController {
     }
 
     debugPrint("Kayaknya data Sensor Valuenya kosong : \n -> $sensorsValueList");
+
     return sensorsValueList;
   }
 
@@ -518,6 +516,71 @@ class HomeController extends GetxController {
     update();
   }
 
+  confirmDelete(int index, BuildContext context) async {
+    String data = sensorsValue[index]['name'].toString();
+
+    Get.defaultDialog(
+      contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      titlePadding: const EdgeInsets.only(top: 20),
+      title: "Confirm Delete",
+      titleStyle: AppFonts.mediumText,
+      middleTextStyle: AppFonts.regularText.copyWith(
+        fontSize: 14.0,
+      ),
+      middleText: "Are you sure want to delete $data sensor?",
+      actions: [
+        OutlinedButton(
+          onPressed: () => Get.back(),
+          child: Text(
+            "No",
+            style: AppFonts.regularText.copyWith(fontSize: 12.0),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            await deleteSensor(index);
+            Get.back();
+            showInfoNotification(
+                context: context, description: "Sensor $data deleted successfully");
+          },
+          child: Text(
+            "Yes",
+            style: AppFonts.regularText.copyWith(fontSize: 12.0),
+          ),
+        ),
+      ],
+    );
+  }
+
+  deleteSensor(int index) async {
+    String menuTitle = monitoringList[activePage.value].toString().camelCase!;
+
+    sensorsValue.removeRange(index, index + 1);
+    sensorsData[menuTitle]['Id'].removeRange(index, index + 1);
+    sensorsData[menuTitle]['prtgIp'].removeRange(index, index + 1);
+
+    isRefresh.value = true;
+
+    await Utils.transaction(
+      type: "save",
+      db: db!,
+      objectStore: "sensorsData",
+      action: 'readwrite',
+      data: sensorsData,
+    );
+
+    await Utils.transaction(
+      type: "save",
+      db: db!,
+      objectStore: "sensorsValue",
+      action: 'readwrite',
+      data: sensorsValue,
+      object: activeObjectName.value,
+    );
+
+    update();
+  }
+
   notificationAlert(BuildContext context) async {
     // await audioplayer.setPlayerMode(PlayerMode.lowLatency);
 
@@ -525,6 +588,7 @@ class HomeController extends GetxController {
 
     for (var i = 0; i < sensorsValue.length; i++) {
       int currentData = sensorsValue[i]["value"].last;
+      String sensorName = sensorsValue[i]["name"];
 
       List reversedData = List.from(sensorsValue[i]["value"].reversed);
       List lastestData = [];
@@ -539,6 +603,7 @@ class HomeController extends GetxController {
 
       double maxlastestData = lastestData.fold(
           0, (previousValue, element) => previousValue > element ? previousValue : element);
+
       double avgData = maxlastestData;
 
       // int maxVal = sensorsValue.reduce((prev, element) => null);
@@ -553,16 +618,19 @@ class HomeController extends GetxController {
       debugPrint("thresoldMinor data ke $i = $thresoldMinor");
       debugPrint("thresoldMajor data ke $i = $thresoldMajor");
 
-      showErrorNotification(context: context);
-
       if (isNotificationPlay == false) {
         if (currentData <= thresoldMajor || currentData < 10) {
-          debugPrint("----------------------> Playing Major Alaram");
+          debugPrint("----------------------> Playing Major Alarm");
+          showErrorNotification(
+              context: context, description: "$sensorName is low Traffic", type: "major");
+
           await audioplayer.play(DeviceFileSource('/assets/sounds/major_alarm.wav'), volume: .8);
         }
 
         if (currentData <= thresoldMinor && currentData >= thresoldMajor) {
-          Get.snackbar("sad", "asd");
+          debugPrint("----------------------> Playing Minor Alarm");
+          showErrorNotification(
+              context: context, description: "$sensorName is low Traffic", type: "minor");
 
           await audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
         }

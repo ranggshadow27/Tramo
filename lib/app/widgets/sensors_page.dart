@@ -180,6 +180,18 @@ class SensorsPage extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            Positioned(
+                              right: 0,
+                              child: IconButton.outlined(
+                                onPressed: () => controller.confirmDelete(index, context),
+                                iconSize: 12,
+                                splashRadius: 12,
+                                icon: const Icon(
+                                  FontAwesomeIcons.xmark,
+                                  color: AccentColors.redColor,
+                                ),
+                              ),
+                            ),
                           ],
                         );
                       },
