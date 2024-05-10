@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import 'package:tramo/app/widgets/add_sensors_button.dart';
 import 'package:tramo/app/widgets/chart_widget.dart';
+import 'package:tramo/app/widgets/error_notification.dart';
 
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
@@ -107,6 +108,7 @@ class SensorsPage extends StatelessWidget {
                     ),
                     itemBuilder: (context, index) => FutureBuilder(
                       future: controller.fetchApiData(
+                        context: context,
                         index: index,
                         key: sensorId[index].toString(),
                         objectName: controller.activeObjectName.isEmpty
@@ -169,7 +171,7 @@ class SensorsPage extends StatelessWidget {
                             Positioned(
                               top: 30,
                               child: IconButton.outlined(
-                                onPressed: () => controller.notificationAlert(),
+                                onPressed: () => controller.notificationAlert(context),
                                 iconSize: 12,
                                 splashRadius: 12,
                                 icon: const Icon(

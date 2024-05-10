@@ -4,13 +4,18 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
+import 'package:elegant_notification/elegant_notification.dart';
+import 'package:elegant_notification/resources/arrays.dart';
+import 'package:elegant_notification/resources/stacked_options.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 import 'package:intl/intl.dart';
 import 'package:tramo/app/constants/themes/app_colors.dart';
+import 'package:tramo/app/constants/themes/font_style.dart';
 import 'package:tramo/app/utils/utils.dart';
+import 'package:tramo/app/widgets/error_notification.dart';
 
 class HomeController extends GetxController {
   IdbFactory databaseFactory = getIdbFactory()!;
@@ -31,7 +36,7 @@ class HomeController extends GetxController {
     }
 
     sensorsValue = await getSensorsValue(activeObjectName.value);
-    await notificationAlert();
+    // await notificationAlert();
 
     isLoading = false;
     update();
@@ -415,6 +420,7 @@ class HomeController extends GetxController {
     required String key,
     required String objectName,
     required int index,
+    required BuildContext context,
   }) async {
     Map currentSensorValue = Map<String, dynamic>.from(sensorsValue[index]);
 
@@ -447,7 +453,7 @@ class HomeController extends GetxController {
             timer = Timer.periodic(const Duration(seconds: 20), (timer) async {
               isRefresh.value = true;
               debugPrint("IS NOTIFICATION IS ACTIVE? ---------------");
-              await notificationAlert();
+              await notificationAlert(context);
 
               update();
             });
@@ -512,7 +518,7 @@ class HomeController extends GetxController {
     update();
   }
 
-  notificationAlert() async {
+  notificationAlert(BuildContext context) async {
     // await audioplayer.setPlayerMode(PlayerMode.lowLatency);
 
     debugPrint("----------------------> Thresold Logic");
@@ -547,6 +553,8 @@ class HomeController extends GetxController {
       debugPrint("thresoldMinor data ke $i = $thresoldMinor");
       debugPrint("thresoldMajor data ke $i = $thresoldMajor");
 
+      showErrorNotification(context: context);
+
       if (isNotificationPlay == false) {
         if (currentData <= thresoldMajor || currentData < 10) {
           debugPrint("----------------------> Playing Major Alaram");
@@ -554,6 +562,8 @@ class HomeController extends GetxController {
         }
 
         if (currentData <= thresoldMinor && currentData >= thresoldMajor) {
+          Get.snackbar("sad", "asd");
+
           await audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
         }
       }
