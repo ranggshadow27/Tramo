@@ -20,6 +20,7 @@ showErrorNotification({
     ),
     progressIndicatorColor: type == "minor" ? AccentColors.warningColor : AccentColors.redColor,
     width: 360,
+    toastDuration: const Duration(seconds: 5),
     stackedOptions: StackedOptions(
       key: 'topRight',
       type: StackedType.above,

@@ -56,6 +56,8 @@ class HomeController extends GetxController {
   RxBool isWideWindow = true.obs;
   RxInt activePage = 0.obs;
   RxString activeObjectName = "".obs;
+  String? groupNameObx;
+  String? errNameObx;
 
   String? sensorKey;
   int? sensorIndex;
@@ -218,9 +220,14 @@ class HomeController extends GetxController {
         debugPrint(
             "Berhasil menambahkan menu ${activeObjectName.value} berikut isinya \n ->${monitoringList.toString()}");
       } else {
+        groupNameObx = "Group name is already exist.";
+        update();
+
         debugPrint("Hmm.. menu sudah ada");
       }
     } else {
+      groupNameObx = "Group name cannot be empty.";
+      update();
       debugPrint("Diisi dulu lah breay");
     }
   }
@@ -272,7 +279,7 @@ class HomeController extends GetxController {
       Transaction txn = db!.transaction('sensorsValue', 'readwrite');
       ObjectStore store = txn.objectStore('sensorsValue');
 
-      int maxValue = 30;
+      int maxValue = 60;
       int countMaxLength = sensorsValueList[index]['value'].length - maxValue;
 
       if (sensorsValueList[index]['value'].length > maxValue) {
@@ -360,6 +367,14 @@ class HomeController extends GetxController {
 
   Future saveSensorsData(int index) async {
     if (sensorsIdTC.text.isNotEmpty) {
+      groupNameObx = null;
+    }
+
+    if (prtgIpTC.text.isNotEmpty) {
+      errNameObx = null;
+    }
+
+    if (sensorsIdTC.text.isNotEmpty && prtgIpTC.text.isNotEmpty) {
       try {
         String menuTitle = monitoringList[index].toString().camelCase!;
         Map<String, dynamic> keyedSensorsData = {};
@@ -375,6 +390,7 @@ class HomeController extends GetxController {
           keyedSensorsData.addAll({
             'Id': [int.parse(sensorsIdTC.text)],
             'prtgIp': [int.parse(prtgIpTC.text)],
+            'alert': [true],
           });
 
           debugPrint(
@@ -382,6 +398,7 @@ class HomeController extends GetxController {
         } else {
           keyedSensorsData['Id'].add(int.parse(sensorsIdTC.text));
           keyedSensorsData['prtgIp'].add(int.parse(prtgIpTC.text));
+          keyedSensorsData['alert'].add(true);
 
           debugPrint("menambahkan data baru, output : $keyedSensorsData");
         }
@@ -409,8 +426,17 @@ class HomeController extends GetxController {
       } catch (e) {
         debugPrint(e.toString());
       }
-    } else {
-      debugPrint("Tolong masukin sensor datanya dulu lah");
+    }
+
+    if (sensorsIdTC.text.isEmpty || sensorsIdTC.text == "") {
+      groupNameObx = "Sensor ID cannot be Empty";
+      update();
+      return;
+    }
+    if (prtgIpTC.text.isEmpty || prtgIpTC.text == "") {
+      errNameObx = "PRTG IP cannot be Empty";
+      update();
+      return;
     }
   }
 
@@ -422,7 +448,7 @@ class HomeController extends GetxController {
   }) async {
     Map currentSensorValue = Map<String, dynamic>.from(sensorsValue[index]);
 
-    debugPrint("Ini adalah currentSensorValue-> \n$currentSensorValue");
+    // debugPrint("Ini adalah currentSensorValue-> \n$currentSensorValue");
 
     if (isRefresh.isTrue) {
       var dio = Dio();
@@ -478,42 +504,64 @@ class HomeController extends GetxController {
 
   updateSensor(int index) async {
     String menuTitle = monitoringList[activePage.value].toString().camelCase!;
-    Map<String, dynamic> keyedSensorsData = await getSensorsData(key: menuTitle);
 
-    keyedSensorsData['Id'][index] = (int.parse(sensorsIdTC.text));
-    keyedSensorsData['prtgIp'][index] = (int.parse(prtgIpTC.text));
+    if (sensorsIdTC.text.isNotEmpty) {
+      groupNameObx = null;
+    }
 
-    sensorsData.addAll({menuTitle: keyedSensorsData});
+    if (prtgIpTC.text.isNotEmpty) {
+      errNameObx = null;
+    }
 
-    isRefresh.value = true;
+    if (sensorsIdTC.text.isNotEmpty && prtgIpTC.text.isNotEmpty) {
+      Map<String, dynamic> keyedSensorsData = await getSensorsData(key: menuTitle);
 
-    await Utils.transaction(
-      type: "save",
-      db: db!,
-      objectStore: "sensorsData",
-      action: 'readwrite',
-      data: sensorsData,
-    );
+      keyedSensorsData['Id'][index] = (int.parse(sensorsIdTC.text));
+      keyedSensorsData['prtgIp'][index] = (int.parse(prtgIpTC.text));
 
-    sensorsValue[index]['sensorId'] = (int.parse(sensorsIdTC.text));
-    sensorsValue[index]['name'] = "Updating sensor from server, Pls wait..";
-    sensorsValue[index]['value'] = [];
-    sensorsValue[index]['time'] = [];
+      sensorsData.addAll({menuTitle: keyedSensorsData});
 
-    await Utils.transaction(
-      type: "save",
-      db: db!,
-      objectStore: "sensorsValue",
-      action: 'readwrite',
-      data: sensorsValue,
-      object: activeObjectName.value,
-    );
+      isRefresh.value = true;
 
-    sensorsIdTC.clear();
-    prtgIpTC.clear();
-    Get.back();
+      await Utils.transaction(
+        type: "save",
+        db: db!,
+        objectStore: "sensorsData",
+        action: 'readwrite',
+        data: sensorsData,
+      );
 
-    update();
+      sensorsValue[index]['sensorId'] = (int.parse(sensorsIdTC.text));
+      sensorsValue[index]['name'] = "Updating sensor from server, Pls wait..";
+      sensorsValue[index]['value'] = [];
+      sensorsValue[index]['time'] = [];
+
+      await Utils.transaction(
+        type: "save",
+        db: db!,
+        objectStore: "sensorsValue",
+        action: 'readwrite',
+        data: sensorsValue,
+        object: activeObjectName.value,
+      );
+
+      sensorsIdTC.clear();
+      prtgIpTC.clear();
+      Get.back();
+
+      update();
+    }
+
+    if (sensorsIdTC.text.isEmpty || sensorsIdTC.text == "") {
+      groupNameObx = "Sensor ID cannot be Empty";
+      update();
+      return;
+    }
+    if (prtgIpTC.text.isEmpty || prtgIpTC.text == "") {
+      errNameObx = "PRTG IP cannot be Empty";
+      update();
+      return;
+    }
   }
 
   confirmDelete(int index, BuildContext context) async {
@@ -581,14 +629,40 @@ class HomeController extends GetxController {
     update();
   }
 
+  disableAlert(int index) async {
+    String menuTitle = monitoringList[activePage.value].toString().camelCase!;
+    bool isAlertEnable = sensorsData[menuTitle]['alert'][index];
+    debugPrint("-----------> Alert Sensor ${sensorsValue[index]['name']} Before $isAlertEnable");
+
+    isAlertEnable = !isAlertEnable;
+    isRefresh.value = true;
+
+    sensorsData[menuTitle]['alert'][index] = isAlertEnable;
+
+    await Utils.transaction(
+      type: "save",
+      db: db!,
+      objectStore: "sensorsData",
+      action: 'readwrite',
+      data: sensorsData,
+    );
+
+    debugPrint("-----------> Alert Sensor ${sensorsValue[index]['name']} After $isAlertEnable");
+
+    update();
+  }
+
   notificationAlert(BuildContext context) async {
     // await audioplayer.setPlayerMode(PlayerMode.lowLatency);
+    String menuTitle = monitoringList[activePage.value].toString().camelCase!;
 
     debugPrint("----------------------> Thresold Logic");
 
     for (var i = 0; i < sensorsValue.length; i++) {
       int currentData = sensorsValue[i]["value"].last;
       String sensorName = sensorsValue[i]["name"];
+
+      bool isAlertEnable = sensorsData[menuTitle]['alert'][i];
 
       List reversedData = List.from(sensorsValue[i]["value"].reversed);
       List lastestData = [];
@@ -618,7 +692,7 @@ class HomeController extends GetxController {
       debugPrint("thresoldMinor data ke $i = $thresoldMinor");
       debugPrint("thresoldMajor data ke $i = $thresoldMajor");
 
-      if (isNotificationPlay == false) {
+      if (isNotificationPlay == false && isAlertEnable == true) {
         if (currentData <= thresoldMajor || currentData < 10) {
           debugPrint("----------------------> Playing Major Alarm");
           showErrorNotification(
@@ -629,14 +703,20 @@ class HomeController extends GetxController {
 
         if (currentData <= thresoldMinor && currentData >= thresoldMajor) {
           debugPrint("----------------------> Playing Minor Alarm");
+          await audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
+
           showErrorNotification(
               context: context, description: "$sensorName is low Traffic", type: "minor");
-
-          await audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
         }
       }
     }
 
     isNotificationPlay = false;
+  }
+
+  playSound() {
+    debugPrint("----------------------> Playing Minor Alarm");
+
+    audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
   }
 }

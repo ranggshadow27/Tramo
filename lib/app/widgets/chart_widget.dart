@@ -76,12 +76,20 @@ class ChartWidget extends StatelessWidget {
             show: true,
             topTitles: AxisTitles(
               axisNameSize: 23,
-              axisNameWidget: Text(
-                "$chartTitle (${mainData.length})" ?? "no data",
-                style: const TextStyle(
-                  fontSize: 12.0,
-                  color: BaseColors.primaryText,
-                  fontWeight: FontWeight.bold,
+              axisNameWidget: SizedBox(
+                width: MediaQuery.of(context).size.width * .2,
+                child: SizedBox(
+                  width: 200,
+                  child: Text(
+                    "$chartTitle (${mainData.length})" ?? "no data",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                      color: BaseColors.primaryText,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ),
               ),
             ),

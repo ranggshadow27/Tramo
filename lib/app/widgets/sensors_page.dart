@@ -9,6 +9,8 @@ import 'package:tramo/app/widgets/error_notification.dart';
 
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
+import 'custom_button.dart';
+import 'custom_textfield.dart';
 
 class SensorsPage extends StatelessWidget {
   const SensorsPage({
@@ -64,7 +66,7 @@ class SensorsPage extends StatelessWidget {
                 const Spacer(),
                 AddSensorButton(
                   controller: controller,
-                  title: "Add Sensors",
+                  title: "Add Sensor",
                   index: activePage,
                 )
               ],
@@ -86,7 +88,7 @@ class SensorsPage extends StatelessWidget {
                 }
 
                 List sensorId = controller.sensorsData[menuTitle]['Id'] ?? [];
-                List sensorIp = controller.sensorsData[menuTitle]['prtgIp'] ?? [];
+                List sensorAlert = controller.sensorsData[menuTitle]['alert'] ?? [];
 
                 String firstMonitoringMenu = controller.monitoringList[0].toString().camelCase!;
 
@@ -101,8 +103,34 @@ class SensorsPage extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     itemCount: controller.sensorsData[menuTitle]['Id'].length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: constraints.maxWidth <= 720 ? 2 : 3,
-                      childAspectRatio: constraints.maxWidth <= 720 ? 1.3 : 2,
+                      crossAxisCount: constraints.maxWidth < 580
+                          ? 1
+                          : constraints.maxWidth >= 580 && constraints.maxWidth < 680
+                              ? 1
+                              : constraints.maxWidth >= 680 && constraints.maxWidth < 780
+                                  ? 2
+                                  : constraints.maxWidth >= 780 && constraints.maxWidth < 880
+                                      ? 2
+                                      : constraints.maxWidth >= 880 && constraints.maxWidth < 1100
+                                          ? 3
+                                          : constraints.maxWidth >= 1100 &&
+                                                  constraints.maxWidth < 1200
+                                              ? 3
+                                              : 4,
+                      childAspectRatio: constraints.maxWidth < 580
+                          ? 2
+                          : constraints.maxWidth >= 580 && constraints.maxWidth < 680
+                              ? 3
+                              : constraints.maxWidth >= 680 && constraints.maxWidth < 780
+                                  ? 1.5
+                                  : constraints.maxWidth >= 780 && constraints.maxWidth < 880
+                                      ? 1.8
+                                      : constraints.maxWidth >= 880 && constraints.maxWidth < 1100
+                                          ? 1.7
+                                          : constraints.maxWidth >= 1100 &&
+                                                  constraints.maxWidth < 1200
+                                              ? 1.7
+                                              : 1.5,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                     ),
@@ -171,11 +199,13 @@ class SensorsPage extends StatelessWidget {
                             Positioned(
                               top: 30,
                               child: IconButton.outlined(
-                                onPressed: () => controller.notificationAlert(context),
+                                onPressed: () => controller.disableAlert(index),
                                 iconSize: 12,
                                 splashRadius: 12,
-                                icon: const Icon(
-                                  FontAwesomeIcons.soundcloud,
+                                icon: Icon(
+                                  sensorAlert[index] == true
+                                      ? FontAwesomeIcons.solidBell
+                                      : FontAwesomeIcons.bellSlash,
                                   color: AccentColors.tealColor,
                                 ),
                               ),
@@ -192,6 +222,18 @@ class SensorsPage extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            // Positioned(
+                            //   top: 60,
+                            //   child: IconButton.outlined(
+                            //     onPressed: () => controller.playSound(),
+                            //     iconSize: 12,
+                            //     splashRadius: 12,
+                            //     icon: const Icon(
+                            //       FontAwesomeIcons.soundcloud,
+                            //       color: AccentColors.tealColor,
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         );
                       },
@@ -208,36 +250,43 @@ class SensorsPage extends StatelessWidget {
 
   Widget updateDialog(BuildContext context, int index) {
     return Dialog(
-      child: IntrinsicWidth(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * .5,
+      backgroundColor: BaseColors.primaryBackground,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: IntrinsicHeight(
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          width: 300,
+          padding: const EdgeInsets.all(32),
           child: Column(
             children: [
-              const Text("Please insert the Sensor Id from PRTG"),
-              SizedBox(
-                width: 300,
-                child: TextField(
-                  controller: controller.sensorsIdTC,
-                  keyboardType: TextInputType.number,
+              GetBuilder<HomeController>(
+                builder: (controller) => myTextField(
+                  hintText: "ex. 25609",
+                  c: controller.sensorsIdTC,
+                  errorText: controller.groupNameObx,
+                  labelText: "Insert the Sensor ID from PRTG",
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
               ),
               const SizedBox(height: 20),
-              const Text("Please insert the PRTG IP"),
-              SizedBox(
-                width: 300,
-                child: TextField(
-                  controller: controller.prtgIpTC,
-                  keyboardType: TextInputType.number,
+              GetBuilder<HomeController>(
+                builder: (controller) => myTextField(
+                  hintText: "ex. 202.55.175.235:8443",
+                  c: controller.prtgIpTC,
+                  errorText: controller.errNameObx,
+                  labelText: "Insert the PRTG IP",
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
+              myCustomButton(
+                onTap: () async {
                   await controller.updateSensor(index);
                 },
-                child: const Text("Submit"),
               ),
             ],
           ),

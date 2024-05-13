@@ -25,14 +25,22 @@ class HomeView extends GetView<HomeController> {
         builder: (context, constraints) {
           RxString maxH = constraints.maxHeight.toString().obs;
           RxDouble maxHeig = constraints.maxHeight.obs;
+          RxDouble maxWidth = constraints.maxWidth.obs;
 
-          if (constraints.maxWidth <= 800) {
-            controller.isNavbarShrink.value = false;
-          } else if (constraints.maxWidth <= 1000) {
-            controller.isWideWindow.value = false;
+          if (controller.isNavbarShrink.value == true) {
+            if (maxWidth < 1000) {
+              controller.isNavbarShrink.value = false;
+              controller.isWideWindow.value = false;
+            } else if (maxWidth >= 1000) {
+              controller.isNavbarShrink.value = true;
+              controller.isWideWindow.value = true;
+            }
           } else {
-            controller.isWideWindow.value = true;
-            controller.isNavbarShrink.value = true;
+            if (maxWidth < 1000) {
+              controller.isWideWindow.value = false;
+            } else if (maxWidth >= 1000) {
+              controller.isWideWindow.value = true;
+            }
           }
 
           return Row(
@@ -67,17 +75,18 @@ class HomeView extends GetView<HomeController> {
                         iconColor: AccentColors.redColor,
                       ),
                       SizedBox(
+                        height: controller.isNavbarShrink.value
+                            ? 45.5 * double.parse(controller.monitoringList.length.toString())
+                            : 40 * double.parse(controller.monitoringList.length.toString()),
                         width: controller.isNavbarShrink.value ? 230 : 40,
                         child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: controller.monitoringList.length,
                           itemBuilder: (context, index) {
                             if (controller.monitoringList.isEmpty) {
                               return const SizedBox();
                             } else {
-                              return Obx(() {
-                                return MonitoringList(
+                              return Obx(
+                                () => MonitoringList(
                                   callback: () {
                                     controller.switchPage(index);
                                   },
@@ -88,18 +97,17 @@ class HomeView extends GetView<HomeController> {
                                   isShrink: controller.isNavbarShrink.value,
                                   icon: FontAwesomeIcons.circle,
                                   iconColor: controller.autoColor(index),
-                                );
-                              });
+                                ),
+                              );
                             }
                           },
                         ),
                       ),
-                      const Divider(),
                       AddMonitoringButton(
                         title: 'Add New Group',
                         controller: controller,
                       ),
-                      const SizedBox(height: 20),
+                      Spacer(),
                     ],
                   ),
                 ),

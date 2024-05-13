@@ -1,7 +1,11 @@
+import 'package:get/get.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
+import 'package:tramo/app/widgets/custom_button.dart';
+import 'package:tramo/app/widgets/custom_textfield.dart';
 
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
@@ -31,7 +35,10 @@ class AddMonitoringButton extends StatelessWidget {
           onTap: () {
             showDialog(
               context: context,
-              builder: (context) => myCustomDialog(context, controller),
+              builder: (context) {
+                controller.groupNameObx = null;
+                return myCustomDialog(context);
+              },
             );
           },
           borderRadius: BorderRadius.circular(8),
@@ -81,24 +88,36 @@ class AddMonitoringButton extends StatelessWidget {
   }
 }
 
-Widget myCustomDialog(BuildContext context, HomeController controller) {
+Widget myCustomDialog(BuildContext context) {
+  final controller = Get.put(HomeController());
   return Dialog(
+    backgroundColor: BaseColors.primaryBackground,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    ),
     child: IntrinsicHeight(
       child: Container(
-        width: MediaQuery.sizeOf(context).width * .4,
-        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        width: 300,
+        padding: const EdgeInsets.all(32),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("data"),
-            TextField(
-              controller: controller.monitoringGroupTC,
+            GetBuilder<HomeController>(
+              builder: (controller) => myTextField(
+                hintText: "VSAT Traffic Monitoring Group",
+                c: controller.monitoringGroupTC,
+                errorText: controller.groupNameObx,
+                labelText: "Insert Group Name",
+              ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                controller.saveMonitoringGroup();
-              },
-              child: Text("Submit"),
-            ),
+            const SizedBox(height: 12),
+            myCustomButton(
+              onTap: () => controller.saveMonitoringGroup(),
+              title: "Submit",
+            )
           ],
         ),
       ),
