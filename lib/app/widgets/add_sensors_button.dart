@@ -1,3 +1,4 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -28,11 +29,13 @@ class AddSensorButton extends StatelessWidget {
     final bool isShrink = controller.isWideWindow.value;
 
     return Material(
+      color: BaseColors.secondaryBackground,
       borderRadius: BorderRadius.circular(8),
-      color: Colors.transparent,
       child: Center(
         child: InkWell(
           onTap: () {
+            controller.prtgIpTC.clear();
+            controller.sensorsIdTC.clear();
             showDialog(
               context: context,
               builder: (context) => myCustomDialog(context, index),
@@ -44,10 +47,6 @@ class AddSensorButton extends StatelessWidget {
             height: isShrink ? 40 : 30,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: BaseColors.secondaryBackground,
-                width: isShrink ? 1 : 2,
-              ),
             ),
             child: isShrink
                 ? Row(
@@ -57,15 +56,15 @@ class AddSensorButton extends StatelessWidget {
                       const Icon(
                         FontAwesomeIcons.plus,
                         color: AccentColors.greenColor,
-                        size: 12,
+                        size: 16,
                       ),
-                      const SizedBox(width: 5),
+                      const SizedBox(width: 8),
                       SizedBox(
                         child: Text(
                           title,
                           style: AppFonts.semiBoldText.copyWith(
                             color: BaseColors.primaryText,
-                            fontSize: 12.0,
+                            fontSize: 14.0,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -73,8 +72,12 @@ class AddSensorButton extends StatelessWidget {
                       const SizedBox(width: 10),
                     ],
                   )
-                : const Expanded(
-                    child: Icon(FontAwesomeIcons.plus, color: AccentColors.greenColor, size: 12),
+                : const SizedBox(
+                    child: Icon(
+                      FontAwesomeIcons.plus,
+                      color: AccentColors.greenColor,
+                      size: 16,
+                    ),
                   ),
           ),
         ),
@@ -109,7 +112,7 @@ Widget myCustomDialog(BuildContext context, int index) {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
             GetBuilder<HomeController>(
               builder: (controller) => myTextField(
                 hintText: "ex. 202.55.175.235:8443",
@@ -119,7 +122,7 @@ Widget myCustomDialog(BuildContext context, int index) {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
             myCustomButton(
               onTap: () => controller.saveSensorsData(index),
             ),

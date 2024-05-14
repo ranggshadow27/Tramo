@@ -9,6 +9,7 @@ dependencies:
   audioplayers: ^5.0.0
   cupertino_icons: ^1.0.2
   dio: 5.4.3+1
+  dropdown_button2: ^2.3.9
   elegant_notification: ^2.1.2
   fl_chart: ^0.61.0
   flutter:

@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import 'package:tramo/app/widgets/add_sensors_button.dart';
 import 'package:tramo/app/widgets/chart_widget.dart';
-import 'package:tramo/app/widgets/error_notification.dart';
 
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
@@ -46,13 +45,13 @@ class SensorsPage extends StatelessWidget {
               ),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
                   controller.monitoringList[activePage],
                   style: AppFonts.boldText.copyWith(
                     color: BaseColors.primaryText,
-                    fontSize: 18.0,
+                    fontSize: 16.0,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -60,9 +59,9 @@ class SensorsPage extends StatelessWidget {
                   "Monitoring",
                   style: AppFonts.regularText.copyWith(
                     color: BaseColors.secondaryText,
+                    fontSize: 14.0,
                   ),
                 ),
-                const SizedBox(width: 36),
                 const Spacer(),
                 AddSensorButton(
                   controller: controller,
@@ -72,176 +71,211 @@ class SensorsPage extends StatelessWidget {
               ],
             ),
           ),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                var height = MediaQuery.of(context).size.height;
-                var width = MediaQuery.of(context).size.width;
+          LayoutBuilder(
+            builder: (context, constraints) {
+              var height = MediaQuery.of(context).size.height;
+              var width = MediaQuery.of(context).size.width;
 
-                if (controller.sensorsData[menuTitle] == null) {
-                  return Center(
-                    child: Text(
-                      "There is no data to show",
-                      style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
+              if (controller.sensorsData[menuTitle] == null) {
+                return Center(
+                  child: Text(
+                    "There is no data to show",
+                    style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
+                  ),
+                );
+              }
+
+              List sensorId = controller.sensorsData[menuTitle]['Id'] ?? [];
+              List sensorAlert = controller.sensorsData[menuTitle]['alert'] ?? [];
+
+              String firstMonitoringMenu = controller.monitoringList[0].toString().camelCase!;
+
+              return SizedBox(
+                height: maxHeig! < 400 || maxHeig! < 670
+                    ? height * .8
+                    : constraints.maxWidth < 900
+                        ? height * .89
+                        : height * .89,
+                width: width * 1,
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: controller.sensorsData[menuTitle]['Id'].length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: constraints.maxWidth < 580
+                        ? 1
+                        : constraints.maxWidth >= 580 && constraints.maxWidth < 680
+                            ? 2
+                            : constraints.maxWidth >= 680 && constraints.maxWidth < 780
+                                ? 2
+                                : constraints.maxWidth >= 780 && constraints.maxWidth < 880
+                                    ? 2
+                                    : constraints.maxWidth >= 880 && constraints.maxWidth < 1100
+                                        ? 3
+                                        : constraints.maxWidth >= 1100 &&
+                                                constraints.maxWidth < 1200
+                                            ? 3
+                                            : 4,
+                    childAspectRatio: constraints.maxWidth < 580
+                        ? 2
+                        : constraints.maxWidth >= 580 && constraints.maxWidth < 680
+                            ? 1.5
+                            : constraints.maxWidth >= 680 && constraints.maxWidth < 780
+                                ? 1.5
+                                : constraints.maxWidth >= 780 && constraints.maxWidth < 880
+                                    ? 1.8
+                                    : constraints.maxWidth >= 880 && constraints.maxWidth < 1100
+                                        ? 1.7
+                                        : constraints.maxWidth >= 1100 &&
+                                                constraints.maxWidth < 1200
+                                            ? 1.7
+                                            : 1.5,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemBuilder: (context, index) => FutureBuilder(
+                    future: controller.fetchApiData(
+                      context: context,
+                      index: index,
+                      key: sensorId[index].toString(),
+                      objectName: controller.activeObjectName.isEmpty
+                          ? "sv_$firstMonitoringMenu"
+                          : controller.activeObjectName.value,
                     ),
-                  );
-                }
+                    builder: (context, snapshot) {
+                      // if (snapshot.connectionState == ConnectionState.waiting) {
+                      //   return const Center(
+                      //     child: CircularProgressIndicator(),
+                      //   );
+                      // }
 
-                List sensorId = controller.sensorsData[menuTitle]['Id'] ?? [];
-                List sensorAlert = controller.sensorsData[menuTitle]['alert'] ?? [];
-
-                String firstMonitoringMenu = controller.monitoringList[0].toString().camelCase!;
-
-                return SizedBox(
-                  height: maxHeig! < 400 || maxHeig! < 670
-                      ? height * .8
-                      : constraints.maxWidth < 900
-                          ? height * .89
-                          : height * .89,
-                  width: width * 1,
-                  child: GridView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: controller.sensorsData[menuTitle]['Id'].length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: constraints.maxWidth < 580
-                          ? 1
-                          : constraints.maxWidth >= 580 && constraints.maxWidth < 680
-                              ? 1
-                              : constraints.maxWidth >= 680 && constraints.maxWidth < 780
-                                  ? 2
-                                  : constraints.maxWidth >= 780 && constraints.maxWidth < 880
-                                      ? 2
-                                      : constraints.maxWidth >= 880 && constraints.maxWidth < 1100
-                                          ? 3
-                                          : constraints.maxWidth >= 1100 &&
-                                                  constraints.maxWidth < 1200
-                                              ? 3
-                                              : 4,
-                      childAspectRatio: constraints.maxWidth < 580
-                          ? 2
-                          : constraints.maxWidth >= 580 && constraints.maxWidth < 680
-                              ? 3
-                              : constraints.maxWidth >= 680 && constraints.maxWidth < 780
-                                  ? 1.5
-                                  : constraints.maxWidth >= 780 && constraints.maxWidth < 880
-                                      ? 1.8
-                                      : constraints.maxWidth >= 880 && constraints.maxWidth < 1100
-                                          ? 1.7
-                                          : constraints.maxWidth >= 1100 &&
-                                                  constraints.maxWidth < 1200
-                                              ? 1.7
-                                              : 1.5,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
-                    itemBuilder: (context, index) => FutureBuilder(
-                      future: controller.fetchApiData(
-                        context: context,
-                        index: index,
-                        key: sensorId[index].toString(),
-                        objectName: controller.activeObjectName.isEmpty
-                            ? "sv_$firstMonitoringMenu"
-                            : controller.activeObjectName.value,
-                      ),
-                      builder: (context, snapshot) {
-                        // if (snapshot.connectionState == ConnectionState.waiting) {
-                        //   return const Center(
-                        //     child: CircularProgressIndicator(),
-                        //   );
-                        // }
-
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text("EROR COK : ${snapshot.error}"),
-                          );
-                        }
-
-                        if (!snapshot.hasData || snapshot.data == null) {
-                          return Center(
-                            child: Text(
-                              "Sensor Id : ${sensorId[index]} \nTerjadi Kesalahan Euy! Sensor tidak ada",
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            "Snapshot Err : ${snapshot.error}",
+                            style: AppFonts.regularText.copyWith(
+                              fontSize: 12.0,
+                              color: BaseColors.primaryText,
                             ),
-                          );
-                        }
+                          ),
+                        );
+                      }
 
-                        Map<String, dynamic> data = snapshot.data;
-                        return Stack(
-                          children: [
-                            ChartWidget(
-                              controller: controller,
-                              chartTitle: data['name'],
-                              mainData: data['value'],
-                              timeData: data['time'],
-                            ),
-                            IconButton.outlined(
-                              onPressed: () => showDialog(
-                                context: context,
-                                builder: (context) {
-                                  String pageName =
-                                      controller.monitoringList[activePage].toString().camelCase!;
-
-                                  controller.sensorsIdTC.text =
-                                      controller.sensorsData[pageName]['Id'][index].toString();
-
-                                  controller.prtgIpTC.text =
-                                      controller.sensorsData[pageName]['prtgIp'][index].toString();
-
-                                  return updateDialog(context, index);
-                                },
-                              ),
-                              iconSize: 12,
-                              splashRadius: 12,
-                              icon: const Icon(
-                                FontAwesomeIcons.penToSquare,
-                                color: AccentColors.tealColor,
-                              ),
-                            ),
-                            Positioned(
-                              top: 30,
-                              child: IconButton.outlined(
-                                onPressed: () => controller.disableAlert(index),
-                                iconSize: 12,
-                                splashRadius: 12,
-                                icon: Icon(
-                                  sensorAlert[index] == true
-                                      ? FontAwesomeIcons.solidBell
-                                      : FontAwesomeIcons.bellSlash,
-                                  color: AccentColors.tealColor,
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return Container(
+                          width: Get.width,
+                          height: Get.height,
+                          decoration: BoxDecoration(
+                            color: BaseColors.secondaryBackground,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              const Spacer(),
+                              Text(
+                                "Sensor ID : ${sensorId[index]}",
+                                style: AppFonts.regularText.copyWith(
+                                  fontSize: 12.0,
+                                  color: BaseColors.primaryText,
                                 ),
                               ),
-                            ),
-                            Positioned(
-                              right: 0,
-                              child: IconButton.outlined(
-                                onPressed: () => controller.confirmDelete(index, context),
-                                iconSize: 12,
-                                splashRadius: 12,
-                                icon: const Icon(
-                                  FontAwesomeIcons.xmark,
+                              Text(
+                                "404",
+                                style: AppFonts.boldText.copyWith(
+                                  fontSize: 60.0,
                                   color: AccentColors.redColor,
                                 ),
                               ),
-                            ),
-                            // Positioned(
-                            //   top: 60,
-                            //   child: IconButton.outlined(
-                            //     onPressed: () => controller.playSound(),
-                            //     iconSize: 12,
-                            //     splashRadius: 12,
-                            //     icon: const Icon(
-                            //       FontAwesomeIcons.soundcloud,
-                            //       color: AccentColors.tealColor,
-                            //     ),
-                            //   ),
-                            // ),
-                          ],
+                              Text(
+                                "Failed to Get Response from Server",
+                                style: AppFonts.regularText.copyWith(
+                                  fontSize: 12.0,
+                                  color: AccentColors.redColor,
+                                ),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
                         );
-                      },
-                    ),
+                      }
+
+                      Map<String, dynamic> data = snapshot.data;
+
+                      return Stack(
+                        children: [
+                          ChartWidget(
+                            controller: controller,
+                            chartTitle: data['name'],
+                            mainData: data['value'],
+                            timeData: data['time'],
+                          ),
+                          IconButton.outlined(
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (context) {
+                                String pageName =
+                                    controller.monitoringList[activePage].toString().camelCase!;
+
+                                controller.sensorsIdTC.text =
+                                    controller.sensorsData[pageName]['Id'][index].toString();
+
+                                controller.prtgIpTC.text =
+                                    controller.sensorsData[pageName]['prtgIp'][index].toString();
+
+                                return updateDialog(context, index);
+                              },
+                            ),
+                            iconSize: 12,
+                            splashRadius: 12,
+                            icon: const Icon(
+                              FontAwesomeIcons.penToSquare,
+                              color: AccentColors.tealColor,
+                            ),
+                          ),
+                          Positioned(
+                            top: 30,
+                            child: IconButton.outlined(
+                              onPressed: () => controller.disableAlert(index),
+                              iconSize: 12,
+                              splashRadius: 12,
+                              icon: Icon(
+                                sensorAlert[index] == true
+                                    ? FontAwesomeIcons.solidBell
+                                    : FontAwesomeIcons.bellSlash,
+                                color: AccentColors.tealColor,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            right: 0,
+                            child: IconButton.outlined(
+                              onPressed: () => controller.confirmDelete(index, context),
+                              iconSize: 12,
+                              splashRadius: 12,
+                              icon: const Icon(
+                                FontAwesomeIcons.xmark,
+                                color: AccentColors.redColor,
+                              ),
+                            ),
+                          ),
+                          // Positioned(
+                          //   top: 60,
+                          //   child: IconButton.outlined(
+                          //     onPressed: () => controller.playSound(),
+                          //     iconSize: 12,
+                          //     splashRadius: 12,
+                          //     icon: const Icon(
+                          //       FontAwesomeIcons.soundcloud,
+                          //       color: AccentColors.tealColor,
+                          //     ),
+                          //   ),
+                          // ),
+                        ],
+                      );
+                    },
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),

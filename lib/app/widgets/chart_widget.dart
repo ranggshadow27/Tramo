@@ -81,7 +81,7 @@ class ChartWidget extends StatelessWidget {
                 child: SizedBox(
                   width: 200,
                   child: Text(
-                    "$chartTitle (${mainData.length})" ?? "no data",
+                    "$chartTitle (${mainData.length})",
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 12.0,

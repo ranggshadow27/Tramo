@@ -5,12 +5,13 @@ import '../constants/themes/font_style.dart';
 
 Widget myCustomButton({
   required VoidCallback onTap,
+  Color? color,
   String? title,
 }) {
   return ElevatedButton(
     style: ElevatedButton.styleFrom(
       // elevation: 0,
-      backgroundColor: AccentColors.tealColor,
+      backgroundColor: color ?? AccentColors.tealColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),

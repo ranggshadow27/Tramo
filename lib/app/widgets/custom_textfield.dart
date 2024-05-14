@@ -22,7 +22,7 @@ Widget myTextField({
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AccentColors.redColor, width: 2),
       ),
-      fillColor: BaseColors.primaryText.withOpacity(.03),
+      fillColor: BaseColors.primaryText.withOpacity(.02),
       filled: true,
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

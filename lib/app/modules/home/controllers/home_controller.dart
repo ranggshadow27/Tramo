@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
@@ -13,6 +13,8 @@ import 'package:tramo/app/constants/themes/font_style.dart';
 import 'package:tramo/app/utils/utils.dart';
 import 'package:tramo/app/widgets/error_notification.dart';
 import 'package:tramo/app/widgets/info_notification.dart';
+
+import 'dart:html' as html;
 
 class HomeController extends GetxController {
   IdbFactory databaseFactory = getIdbFactory()!;
@@ -28,6 +30,8 @@ class HomeController extends GetxController {
     monitoringList.value = await getMonitoringGroup();
     sensorsData.value = await getSensorsData();
 
+    apiServerTC.text = await getApiEndPoint();
+
     if (monitoringList.isNotEmpty) {
       switchPage(activePage.value);
     }
@@ -42,6 +46,7 @@ class HomeController extends GetxController {
   TextEditingController monitoringGroupTC = TextEditingController();
   TextEditingController sensorsIdTC = TextEditingController();
   TextEditingController prtgIpTC = TextEditingController();
+  TextEditingController apiServerTC = TextEditingController();
 
   final audioplayer = AudioPlayer();
 
@@ -54,6 +59,8 @@ class HomeController extends GetxController {
   RxBool isRefresh = true.obs;
   RxBool isNavbarShrink = true.obs;
   RxBool isWideWindow = true.obs;
+  RxBool saveApiURL = false.obs;
+
   RxInt activePage = 0.obs;
   RxString activeObjectName = "".obs;
   String? groupNameObx;
@@ -73,6 +80,67 @@ class HomeController extends GetxController {
     isNavbarShrink.value = !isNavbarShrink.value;
   }
 
+  Future<void> initDatabase() async {
+    const String dbName = 'tramoAppDatabase';
+    const int dbVersion = 1;
+    db = await databaseFactory.open(
+      dbName,
+      version: dbVersion,
+      onUpgradeNeeded: (VersionChangeEvent event) {
+        Database db = event.database;
+        if (!db.objectStoreNames.contains('monitoringMenu')) {
+          db.createObjectStore('monitoringMenu', autoIncrement: true);
+        }
+        if (!db.objectStoreNames.contains('sensorsData')) {
+          db.createObjectStore('sensorsData', autoIncrement: true);
+        }
+        if (!db.objectStoreNames.contains('sensorsValue')) {
+          db.createObjectStore('sensorsValue', autoIncrement: true);
+        }
+        if (!db.objectStoreNames.contains('lastPage')) {
+          db.createObjectStore('lastPage', autoIncrement: true);
+        }
+        if (!db.objectStoreNames.contains('apiEndPoint')) {
+          db.createObjectStore('apiEndPoint', autoIncrement: true);
+        }
+      },
+    );
+  }
+
+  saveApiEndPoint() async {
+    try {
+      await Utils.transaction(
+        type: "save",
+        db: db!,
+        objectStore: 'apiEndPoint',
+        action: 'readwrite',
+        data: apiServerTC.text,
+      );
+
+      debugPrint("API Server URL telah diupdate ke ${apiServerTC.text}");
+    } catch (e) {
+      debugPrint("Eror mengganti Api Server ke ${apiServerTC.text}");
+    } finally {
+      saveApiURL.value = true;
+      isRefresh.value = true;
+
+      update();
+    }
+  }
+
+  Future<String> getApiEndPoint() async {
+    var request = await Utils.transaction(
+      type: "get",
+      db: db!,
+      objectStore: 'apiEndPoint',
+      action: 'readonly',
+    );
+
+    debugPrint("Berikut datanya oyyyyyy : ${request.toString()}");
+
+    return request ?? "localhost:8080";
+  }
+
   saveActivePage() async {
     await Utils.transaction(
       type: "save",
@@ -89,7 +157,6 @@ class HomeController extends GetxController {
       db: db!,
       objectStore: 'lastPage',
       action: 'readonly',
-      data: activePage.value,
     );
 
     int lastPage = int.parse(request != null ? request.toString() : "0");
@@ -100,12 +167,7 @@ class HomeController extends GetxController {
   }
 
   switchPage(int indexPage) async {
-    // if (timer != null && timer!.isActive) {
-    //   timer!.cancel();
-
-    //   isTimerRunning = false;
-    //   debugPrint("Timer sudah dikensel anjas");
-    // }
+    isRefresh.value = true;
 
     activePage.value = indexPage;
 
@@ -136,30 +198,6 @@ class HomeController extends GetxController {
     }
 
     return monitoringColorList[index];
-  }
-
-  Future<void> initDatabase() async {
-    const String dbName = 'tramoAppDatabase';
-    const int dbVersion = 1;
-    db = await databaseFactory.open(
-      dbName,
-      version: dbVersion,
-      onUpgradeNeeded: (VersionChangeEvent event) {
-        Database db = event.database;
-        if (!db.objectStoreNames.contains('monitoringMenu')) {
-          db.createObjectStore('monitoringMenu', autoIncrement: true);
-        }
-        if (!db.objectStoreNames.contains('sensorsData')) {
-          db.createObjectStore('sensorsData', autoIncrement: true);
-        }
-        if (!db.objectStoreNames.contains('sensorsValue')) {
-          db.createObjectStore('sensorsValue', autoIncrement: true);
-        }
-        if (!db.objectStoreNames.contains('lastPage')) {
-          db.createObjectStore('lastPage', autoIncrement: true);
-        }
-      },
-    );
   }
 
   Future<List<dynamic>> getMonitoringGroup() async {
@@ -265,7 +303,12 @@ class HomeController extends GetxController {
     return sensorsValueList;
   }
 
-  Future saveSensorValue(String objectName, int index, int value, String sensorName) async {
+  Future saveSensorValue(
+    String objectName,
+    int index,
+    int value,
+    String sensorName,
+  ) async {
     List sensorsValueList = sensorsValue;
 
     DateTime now = DateTime.now();
@@ -303,7 +346,7 @@ class HomeController extends GetxController {
       debugPrint("Ini sensorsValueList -> \n$sensorsValueList");
       sensorsValue = sensorsValueList;
 
-      return sensorsValueList[index];
+      return sensorsValue[index];
     } else {
       debugPrint("Time valuenya sama, gajadi ditambah");
     }
@@ -448,11 +491,17 @@ class HomeController extends GetxController {
   }) async {
     Map currentSensorValue = Map<String, dynamic>.from(sensorsValue[index]);
 
-    // debugPrint("Ini adalah currentSensorValue-> \n$currentSensorValue");
-
     if (isRefresh.isTrue) {
       var dio = Dio();
-      var apiURL = "http://localhost:8080/backhaul/index.php?id=$key";
+
+      var apiEndpoint = await getApiEndPoint();
+      var apiURL = "http://$apiEndpoint/backhaul/index.php?id=$key";
+
+      if (apiEndpoint == "localhost:8080") {
+        apiURL = "http://localhost:8080/backhaul/index.php?id=$key";
+      }
+
+      debugPrint("BERIKUT API URLNYA -> $apiURL ~~~~~~~~~~~");
 
       try {
         final response = await dio.get(apiURL);
@@ -491,6 +540,7 @@ class HomeController extends GetxController {
         }
       } on DioException catch (e) {
         debugPrint("Terdapat Eror : ${e.message}");
+        return null;
       } finally {
         totalDataFetched++;
 
@@ -544,12 +594,6 @@ class HomeController extends GetxController {
         data: sensorsValue,
         object: activeObjectName.value,
       );
-
-      sensorsIdTC.clear();
-      prtgIpTC.clear();
-      Get.back();
-
-      update();
     }
 
     if (sensorsIdTC.text.isEmpty || sensorsIdTC.text == "") {
@@ -562,6 +606,12 @@ class HomeController extends GetxController {
       update();
       return;
     }
+
+    sensorsIdTC.clear();
+    prtgIpTC.clear();
+    Get.back();
+
+    update();
   }
 
   confirmDelete(int index, BuildContext context) async {
@@ -667,8 +717,8 @@ class HomeController extends GetxController {
       List reversedData = List.from(sensorsValue[i]["value"].reversed);
       List lastestData = [];
 
-      if (reversedData.length >= 3) {
-        lastestData = reversedData.sublist(0, 3);
+      if (reversedData.length >= 10) {
+        lastestData = reversedData.sublist(0, 10);
       } else {
         lastestData = reversedData.sublist(0, reversedData.length);
       }
@@ -718,5 +768,121 @@ class HomeController extends GetxController {
     debugPrint("----------------------> Playing Minor Alarm");
 
     audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
+  }
+
+  exportProfile() async {
+    Map<String, dynamic> myJson = {
+      "groups": monitoringList,
+      "sensorsData": sensorsData,
+    };
+
+    String jsonString = jsonEncode(myJson);
+
+    debugPrint("Ini JSON Stringnya cuy \n $jsonString");
+
+    final blob = html.Blob([jsonString]);
+    final url = html.Url.createObjectUrlFromBlob(blob);
+
+    html.AnchorElement(href: url)
+      ..setAttribute("download", "tramoProfile.json")
+      ..click();
+
+    html.Url.revokeObjectUrl(url);
+  }
+
+  importProfile() async {
+    final input = html.FileUploadInputElement()..accept = '.json';
+
+    input.onChange.listen((event) async {
+      final files = input.files;
+
+      if (files != null && files.isNotEmpty) {
+        final file = files.first;
+
+        final reader = html.FileReader();
+        reader.readAsText(file);
+
+        reader.onLoadEnd.listen((event) async {
+          final jsonString = reader.result as String;
+
+          Map importedJson = jsonDecode(jsonString);
+
+          monitoringList.value = importedJson['groups'];
+
+          Map<String, dynamic> newSensorsData =
+              Map<String, dynamic>.from(importedJson['sensorsData']);
+
+          debugPrint("1. Berikut importedJsonnya :\n$importedJson");
+          debugPrint("2. Berikut newSensorsData :\n$newSensorsData");
+
+          sensorsData.value = newSensorsData;
+
+          for (var i = 0; i < monitoringList.length; i++) {
+            String objectStore = monitoringList[i].toString().camelCase!;
+
+            List sensorsValueList = [];
+
+            debugPrint("3. $objectStore ");
+
+            if (newSensorsData[objectStore] != null) {
+              debugPrint("4. $sensorsValueList ");
+
+              for (var i = 0; i < newSensorsData[objectStore]["Id"].length; i++) {
+                sensorsValueList.add({
+                  "sensorId": newSensorsData[objectStore]["Id"][i],
+                  "value": [],
+                  "time": [],
+                });
+              }
+              debugPrint("5. $sensorsValueList ");
+            }
+
+            await Utils.transaction(
+              type: "save",
+              db: db!,
+              objectStore: 'sensorsValue',
+              action: 'readwrite',
+              object: 'sv_$objectStore',
+              data: sensorsValueList,
+            );
+
+            sensorsValue = sensorsValueList;
+          }
+
+          debugPrint("6. $sensorsValue ");
+
+          isRefresh.value = true;
+
+          await Utils.transaction(
+            type: "save",
+            db: db!,
+            objectStore: 'monitoringMenu',
+            action: 'readwrite',
+            object: 'monitoringMenuList',
+            data: monitoringList,
+          );
+
+          await Utils.transaction(
+            type: "save",
+            db: db!,
+            objectStore: 'sensorsData',
+            action: 'readwrite',
+            object: 'sensorsData',
+            data: newSensorsData,
+          );
+          update();
+
+          debugPrint("2. Berikut newSensorsData :\n$sensorsData");
+
+          Get.back();
+        });
+      } else {
+        debugPrint("File yg di Import Tidak ada CUY!");
+      }
+    });
+
+    html.document.body!.children.add(input);
+    input.click();
+    input.remove();
   }
 }

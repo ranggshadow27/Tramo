@@ -8,6 +8,7 @@ import 'package:tramo/app/widgets/add_monitoring_button.dart';
 import 'package:tramo/app/widgets/menu_list.dart';
 import 'package:tramo/app/widgets/monitoring_list.dart';
 import 'package:tramo/app/widgets/sensors_page.dart';
+import 'package:tramo/app/widgets/setting_button.dart';
 
 import '../controllers/home_controller.dart';
 
@@ -45,8 +46,14 @@ class HomeView extends GetView<HomeController> {
 
           return Row(
             children: [
-              Obx(
-                () => Container(
+              Obx(() {
+                int maxGroups = controller.monitoringList.length;
+
+                if (controller.monitoringList.length >= 5) {
+                  maxGroups = 5;
+                }
+
+                return Container(
                   height: maxHeight,
                   color: BaseColors.navbarBackground,
                   padding: EdgeInsets.symmetric(
@@ -75,9 +82,11 @@ class HomeView extends GetView<HomeController> {
                         iconColor: AccentColors.redColor,
                       ),
                       SizedBox(
-                        height: controller.isNavbarShrink.value
-                            ? 45.5 * double.parse(controller.monitoringList.length.toString())
-                            : 40 * double.parse(controller.monitoringList.length.toString()),
+                        height: maxGroups < 1
+                            ? 0
+                            : maxGroups < 5
+                                ? 45.5 * maxGroups
+                                : 210,
                         width: controller.isNavbarShrink.value ? 230 : 40,
                         child: ListView.builder(
                           itemCount: controller.monitoringList.length,
@@ -103,15 +112,17 @@ class HomeView extends GetView<HomeController> {
                           },
                         ),
                       ),
+                      const SizedBox(height: 12),
                       AddMonitoringButton(
                         title: 'Add New Group',
                         controller: controller,
                       ),
-                      Spacer(),
+                      const Spacer(),
+                      const SettingButton(title: "Settings"),
                     ],
                   ),
-                ),
-              ),
+                );
+              }),
               GetBuilder<HomeController>(builder: (c) {
                 debugPrint("-----------------Reload Page-------------------");
                 return Expanded(

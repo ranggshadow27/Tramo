@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import 'package:tramo/app/widgets/custom_button.dart';
 import 'package:tramo/app/widgets/custom_textfield.dart';
@@ -61,7 +60,7 @@ class AddMonitoringButton extends StatelessWidget {
                       const Icon(
                         FontAwesomeIcons.plus,
                         color: AccentColors.blueColor,
-                        size: 12,
+                        size: 16,
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
@@ -78,7 +77,7 @@ class AddMonitoringButton extends StatelessWidget {
                     child: Icon(
                       FontAwesomeIcons.plus,
                       color: AccentColors.blueColor,
-                      size: 12,
+                      size: 16,
                     ),
                   ),
           ),
@@ -113,7 +112,7 @@ Widget myCustomDialog(BuildContext context) {
                 labelText: "Insert Group Name",
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
             myCustomButton(
               onTap: () => controller.saveMonitoringGroup(),
               title: "Submit",
