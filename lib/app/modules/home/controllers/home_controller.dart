@@ -27,7 +27,9 @@ class HomeController extends GetxController {
 
     activePage.value = await getLastActivePage();
 
-    monitoringList.value = await getMonitoringGroup();
+    dropdownData = await getMonitoringGroup();
+    monitoringList.value = dropdownData;
+
     sensorsData.value = await getSensorsData();
 
     apiServerTC.text = await getApiEndPoint();
@@ -47,6 +49,7 @@ class HomeController extends GetxController {
   TextEditingController sensorsIdTC = TextEditingController();
   TextEditingController prtgIpTC = TextEditingController();
   TextEditingController apiServerTC = TextEditingController();
+  TextEditingController renameGroupTC = TextEditingController();
 
   final audioplayer = AudioPlayer();
 
@@ -60,15 +63,19 @@ class HomeController extends GetxController {
   RxBool isNavbarShrink = true.obs;
   RxBool isWideWindow = true.obs;
   RxBool saveApiURL = false.obs;
+  RxBool updateGroupSuccess = false.obs;
 
   RxInt activePage = 0.obs;
   RxString activeObjectName = "".obs;
+  RxString errNameObs = "".obs;
+
   String? selectedGroupName;
   String? groupNameObx;
   String? errNameObx;
   String? sensorKey;
   int? sensorIndex;
 
+  List dropdownData = [];
   List sensorsValue = [];
   RxMap sensorsData = {}.obs;
 
@@ -178,6 +185,8 @@ class HomeController extends GetxController {
         "Saat ini masuk page dari menu ${monitoringList[indexPage]} -- ${activeObjectName.value}");
 
     sensorsValue = await getSensorsValue(activeObjectName.value);
+
+    debugPrint("Berikut data dari menu ${activeObjectName.value}\n $sensorsValue");
 
     update();
   }
@@ -301,13 +310,14 @@ class HomeController extends GetxController {
         );
 
         await Utils.transaction(
-          type: "save",
+          type: "delete",
           db: db!,
           objectStore: 'sensorsValue',
           action: 'readwrite',
           object: "sv_$sensorValueKey",
-          data: [],
         );
+
+        switchPage(groupIndex > 0 ? groupIndex - 1 : 0);
 
         debugPrint("Sukses menghapus grup nya ");
       }
@@ -318,6 +328,100 @@ class HomeController extends GetxController {
 
       Get.back();
 
+      update();
+    }
+  }
+
+  updateMonitoringGroup() async {
+    List groupData = monitoringList;
+    Map newSensorData = {};
+
+    List newSensorValue = [];
+
+    try {
+      if (renameGroupTC.text.isNotEmpty && renameGroupTC.text != selectedGroupName) {
+        int groupIndex = groupData.indexOf(selectedGroupName);
+
+        debugPrint(
+            "Update Group\n1. Ini datanya cuy --->\n${groupData[groupIndex]} diganti ke ${renameGroupTC.text}");
+
+        groupData[groupIndex] = renameGroupTC.text;
+
+        await Utils.transaction(
+          type: "save",
+          db: db!,
+          objectStore: 'monitoringMenu',
+          action: 'readwrite',
+          object: 'monitoringMenuList',
+          data: groupData,
+        );
+
+        debugPrint("2. Ini groupDatanya cuy --->\n$groupData");
+
+        String oldGroupName = selectedGroupName.toString().camelCase!;
+        String newGroupName = renameGroupTC.text.toString().camelCase!;
+
+        debugPrint("3. Ini old&newnya cuy --->\nold: $oldGroupName new: $newGroupName");
+
+        for (var key in sensorsData.keys) {
+          if (key == oldGroupName) {
+            newSensorData[newGroupName] = sensorsData[oldGroupName];
+          } else {
+            newSensorData[key] = sensorsData[key];
+          }
+        }
+
+        await Utils.transaction(
+          type: "save",
+          db: db!,
+          objectStore: 'sensorsData',
+          action: 'readwrite',
+          object: 'sensorsData',
+          data: newSensorData,
+        );
+
+        sensorsData.value = newSensorData;
+
+        debugPrint("5. Ini newSensorDatanya cuy --->\n$newSensorData");
+
+        newSensorValue = await getSensorsValue("sv_$oldGroupName");
+
+        await Utils.transaction(
+          type: "delete",
+          db: db!,
+          objectStore: 'sensorsValue',
+          action: 'readwrite',
+          object: "sv_$oldGroupName",
+        );
+
+        await Utils.transaction(
+          type: "save",
+          db: db!,
+          objectStore: 'sensorsValue',
+          action: 'readwrite',
+          object: "sv_$newGroupName",
+          data: newSensorValue,
+        );
+
+        sensorsValue = newSensorValue;
+
+        debugPrint(
+            "5. Ini newSensorValuenya cuy --->\n$newSensorValue\nsave di : ${"sv_$newGroupName"} ");
+
+        debugPrint("6. Proses Update Selesai");
+
+        switchPage(groupIndex);
+
+        Get.back();
+        Get.back();
+      } else if (renameGroupTC.text.isEmpty) {
+        errNameObs.value = "New name cannot be Empty!";
+      } else {
+        errNameObs.value = "Please rename with other name";
+      }
+    } catch (e) {
+      debugPrint("Gagal update group Err: $e");
+    } finally {
       update();
     }
   }

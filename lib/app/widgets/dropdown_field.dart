@@ -11,13 +11,14 @@ class DropdownField extends StatelessWidget {
   const DropdownField({
     super.key,
     required this.items,
-    required this.errorText,
+    this.errorText,
     required this.hintText,
     required this.labelText,
   });
 
   final List<String> items;
-  final String hintText, labelText, errorText;
+  final String hintText, labelText;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +34,7 @@ class DropdownField extends StatelessWidget {
         ),
       ),
       decoration: InputDecoration(
+        errorText: errorText,
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AccentColors.redColor, width: 2),
@@ -81,6 +83,11 @@ class DropdownField extends StatelessWidget {
       },
       onChanged: (value) {
         controller.selectedGroupName = value;
+        controller.renameGroupTC.text = value ?? "";
+
+        if (value != null || value!.isNotEmpty) {
+          controller.errNameObs.value = "";
+        }
 
         debugPrint(controller.selectedGroupName);
       },

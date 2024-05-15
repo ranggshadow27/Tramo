@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:simple_circular_progress_bar/simple_circular_progress_bar.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import 'package:tramo/app/widgets/add_sensors_button.dart';
 import 'package:tramo/app/widgets/chart_widget.dart';
@@ -142,11 +144,14 @@ class SensorsPage extends StatelessWidget {
                           : controller.activeObjectName.value,
                     ),
                     builder: (context, snapshot) {
-                      // if (snapshot.connectionState == ConnectionState.waiting) {
-                      //   return const Center(
-                      //     child: CircularProgressIndicator(),
-                      //   );
-                      // }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: LoadingAnimationWidget.waveDots(
+                            color: BaseColors.secondaryText.withOpacity(.5),
+                            size: 26,
+                          ),
+                        );
+                      }
 
                       if (snapshot.hasError) {
                         return Center(
@@ -304,6 +309,7 @@ class SensorsPage extends StatelessWidget {
                   errorText: controller.groupNameObx,
                   labelText: "Insert the Sensor ID from PRTG",
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (p0) {},
                 ),
               ),
               const SizedBox(height: 20),
@@ -314,6 +320,7 @@ class SensorsPage extends StatelessWidget {
                   errorText: controller.errNameObx,
                   labelText: "Insert the PRTG IP",
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (p0) {},
                 ),
               ),
               const SizedBox(height: 20),

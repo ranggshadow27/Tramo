@@ -34,19 +34,31 @@ Widget editGroupDialog(BuildContext context) {
               ),
             ),
             const SizedBox(height: 16),
-            myTextField(
-              hintText: "localhost:8080",
-              labelText: "Server URL",
-              c: controller.apiServerTC,
+            Obx(
+              () => myTextField(
+                hintText: "Insert New Group Name",
+                labelText: "Rename Group",
+                errorText: controller.errNameObs.value != "" ? controller.errNameObs.value : null,
+                c: controller.renameGroupTC,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    controller.errNameObs.value = "";
+                  }
+
+                  debugPrint("THIS IS_> $value");
+                },
+              ),
             ),
             const SizedBox(height: 6),
             myCustomButton(
-              onTap: () => controller.saveApiEndPoint(),
+              onTap: () {
+                controller.updateMonitoringGroup();
+              },
               title: "Rename Group",
               color: BaseColors.secondaryBackground,
             ),
             const SizedBox(height: 4),
-            Obx(() => controller.saveApiURL.isFalse
+            Obx(() => controller.updateGroupSuccess.isFalse
                 ? const SizedBox()
                 : Text(
                     "  Done Save",

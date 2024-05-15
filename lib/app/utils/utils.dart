@@ -13,19 +13,21 @@ class Utils {
     dynamic data,
     dynamic object,
   }) async {
-    if (type == "save") {
-      var txn = db.transaction(objectStore, action);
-      var store = txn.objectStore(objectStore);
-      await store.put(data, object ?? objectStore);
+    var txn = db.transaction(objectStore, action);
+    var store = txn.objectStore(objectStore);
 
+    if (type == "save") {
+      await store.put(data, object ?? objectStore);
       await txn.completed;
 
       return "Data type ${data.runtimeType} saved to $objectStore";
-    } else {
-      var txn = db.transaction(objectStore, action);
-      var store = txn.objectStore(objectStore);
-      var request = await store.getObject(object ?? objectStore);
+    } else if (type == "delete") {
+      await store.delete(object ?? objectStore);
+      await txn.completed;
 
+      return "Objek dengan key $object delete from $objectStore";
+    } else {
+      var request = await store.getObject(object ?? objectStore);
       await txn.completed;
 
       return request;

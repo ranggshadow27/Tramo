@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import 'package:tramo/app/constants/themes/app_colors.dart';
 import 'package:tramo/app/constants/themes/font_style.dart';
@@ -127,7 +128,14 @@ class HomeView extends GetView<HomeController> {
                 debugPrint("-----------------Reload Page-------------------");
                 return Expanded(
                   child: c.isLoading == true
-                      ? const Center(child: CircularProgressIndicator())
+                      ? Center(
+                          child: Center(
+                            child: LoadingAnimationWidget.hexagonDots(
+                              color: BaseColors.secondaryText.withOpacity(.5),
+                              size: 30,
+                            ),
+                          ),
+                        )
                       : c.monitoringList.isEmpty
                           ? Center(
                               child: Text(

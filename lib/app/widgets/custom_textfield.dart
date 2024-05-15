@@ -10,8 +10,10 @@ Widget myTextField({
   errorText,
   required TextEditingController c,
   List<TextInputFormatter>? inputFormatters,
+  required void Function(String) onChanged,
 }) {
   return TextFormField(
+    onChanged: onChanged,
     style: AppFonts.regularText.copyWith(
       fontSize: 14.0,
       color: BaseColors.primaryText,

@@ -27,6 +27,8 @@ class SettingButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
+            // controller.dropdownData = await controller.getMonitoringGroup();
+
             showDialog(
               context: context,
               builder: (context) {

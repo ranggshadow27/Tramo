@@ -39,6 +39,7 @@ Widget settingDialog(BuildContext context) {
               hintText: "localhost:8080",
               labelText: "Server URL",
               c: controller.apiServerTC,
+              onChanged: (p0) {},
             ),
             const SizedBox(height: 6),
             myCustomButton(
@@ -65,19 +66,28 @@ Widget settingDialog(BuildContext context) {
               ),
             ),
             const SizedBox(height: 12),
-            DropdownField(
-              hintText: "Monitoring Group",
-              labelText: "Select Group",
-              items: List<String>.from(controller.monitoringList),
-              errorText: "err",
-            ),
+            Obx(() {
+              return DropdownField(
+                hintText: "Monitoring Group",
+                labelText: "Select Group",
+                items: List<String>.from(controller.dropdownData),
+                errorText: controller.errNameObs.value != "" ? controller.errNameObs.value : null,
+              );
+            }),
             const SizedBox(height: 6),
             Row(
               children: [
                 Expanded(
                   flex: 3,
                   child: myCustomButton(
-                    onTap: () => showDialog(context: context, builder: editGroupDialog),
+                    onTap: () {
+                      if (controller.renameGroupTC.text.isNotEmpty ||
+                          controller.renameGroupTC.text != "") {
+                        showDialog(context: context, builder: editGroupDialog);
+                      } else {
+                        controller.errNameObs.value = "Please select group first!";
+                      }
+                    },
                     color: BaseColors.secondaryBackground,
                     title: "Edit Group",
                   ),

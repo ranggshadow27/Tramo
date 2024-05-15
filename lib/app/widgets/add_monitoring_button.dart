@@ -110,6 +110,7 @@ Widget myCustomDialog(BuildContext context) {
                 c: controller.monitoringGroupTC,
                 errorText: controller.groupNameObx,
                 labelText: "Insert Group Name",
+                onChanged: (p0) {},
               ),
             ),
             const SizedBox(height: 6),
