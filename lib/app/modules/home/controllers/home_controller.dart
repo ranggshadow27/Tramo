@@ -934,13 +934,13 @@ class HomeController extends GetxController {
 
     String jsonString = jsonEncode(myJson);
 
-    debugPrint("Ini JSON Stringnya cuy \n $jsonString");
+    // debugPrint("Ini JSON Stringnya cuy \n $jsonString");
 
     final blob = html.Blob([jsonString]);
     final url = html.Url.createObjectUrlFromBlob(blob);
 
     html.AnchorElement(href: url)
-      ..setAttribute("download", "tramoProfile.json")
+      ..setAttribute("download", "tramoProfile_backup.json")
       ..click();
 
     html.Url.revokeObjectUrl(url);
@@ -968,8 +968,8 @@ class HomeController extends GetxController {
           Map<String, dynamic> newSensorsData =
               Map<String, dynamic>.from(importedJson['sensorsData']);
 
-          debugPrint("1. Berikut importedJsonnya :\n$importedJson");
-          debugPrint("2. Berikut newSensorsData :\n$newSensorsData");
+          // debugPrint("1. Berikut importedJsonnya :\n$importedJson");
+          // debugPrint("2. Berikut newSensorsData :\n$newSensorsData");
 
           sensorsData.value = newSensorsData;
 
@@ -978,10 +978,10 @@ class HomeController extends GetxController {
 
             List sensorsValueList = [];
 
-            debugPrint("3. $objectStore ");
+            // debugPrint("3. $objectStore ");
 
             if (newSensorsData[objectStore] != null) {
-              debugPrint("4. $sensorsValueList ");
+              // debugPrint("4. $sensorsValueList ");
 
               for (var i = 0; i < newSensorsData[objectStore]["Id"].length; i++) {
                 sensorsValueList.add({
@@ -990,7 +990,7 @@ class HomeController extends GetxController {
                   "time": [],
                 });
               }
-              debugPrint("5. $sensorsValueList ");
+              // debugPrint("5. $sensorsValueList ");
             }
 
             await Utils.transaction(
@@ -1005,7 +1005,7 @@ class HomeController extends GetxController {
             sensorsValue = sensorsValueList;
           }
 
-          debugPrint("6. $sensorsValue ");
+          // debugPrint("6. $sensorsValue ");
 
           isRefresh.value = true;
 
@@ -1028,7 +1028,7 @@ class HomeController extends GetxController {
           );
           update();
 
-          debugPrint("2. Berikut newSensorsData :\n$sensorsData");
+          // debugPrint("2. Berikut newSensorsData :\n$sensorsData");
 
           Get.back();
         });

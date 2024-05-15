@@ -58,8 +58,8 @@ class SettingButton extends StatelessWidget {
                       const SizedBox(width: 45),
                       const Icon(
                         FontAwesomeIcons.gear,
-                        color: BaseColors.primaryText,
-                        size: 12,
+                        color: BaseColors.secondaryText,
+                        size: 14,
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
@@ -75,8 +75,8 @@ class SettingButton extends StatelessWidget {
                 : const Center(
                     child: Icon(
                       FontAwesomeIcons.gear,
-                      color: BaseColors.primaryText,
-                      size: 12,
+                      color: BaseColors.secondaryText,
+                      size: 14,
                     ),
                   ),
           ),

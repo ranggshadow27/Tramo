@@ -6,7 +6,6 @@ import '../constants/themes/font_style.dart';
 import '../modules/home/controllers/home_controller.dart';
 import 'custom_button.dart';
 import 'custom_textfield.dart';
-import 'dropdown_field.dart';
 
 Widget editGroupDialog(BuildContext context) {
   final controller = Get.put(HomeController());
@@ -87,7 +86,7 @@ Widget editGroupDialog(BuildContext context) {
                 Expanded(
                   flex: 3,
                   child: myCustomButton(
-                    onTap: () => controller.exportProfile(),
+                    onTap: () {},
                     color: BaseColors.secondaryBackground,
                     title: "Reset Data",
                   ),
@@ -96,7 +95,7 @@ Widget editGroupDialog(BuildContext context) {
                 Expanded(
                   flex: 3,
                   child: myCustomButton(
-                    onTap: () => controller.exportProfile(),
+                    onTap: () {},
                     color: BaseColors.secondaryBackground,
                     title: "Clear",
                   ),

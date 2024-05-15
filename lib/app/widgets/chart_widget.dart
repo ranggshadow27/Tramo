@@ -8,11 +8,11 @@ import '../constants/themes/app_colors.dart';
 class ChartWidget extends StatelessWidget {
   final GetxController controller;
 
-  String? chartTitle;
-  List mainData;
-  List timeData;
+  final String? chartTitle;
+  final List mainData;
+  final List timeData;
 
-  ChartWidget({
+  const ChartWidget({
     required this.controller,
     this.chartTitle,
     required this.mainData,
