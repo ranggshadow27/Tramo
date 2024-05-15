@@ -63,9 +63,9 @@ class HomeController extends GetxController {
 
   RxInt activePage = 0.obs;
   RxString activeObjectName = "".obs;
+  String? selectedGroupName;
   String? groupNameObx;
   String? errNameObx;
-
   String? sensorKey;
   int? sensorIndex;
 
@@ -267,6 +267,58 @@ class HomeController extends GetxController {
       groupNameObx = "Group name cannot be empty.";
       update();
       debugPrint("Diisi dulu lah breay");
+    }
+  }
+
+  deleteMonitoringGroup() async {
+    List groupData = monitoringList;
+
+    try {
+      if (selectedGroupName != null || selectedGroupName != "") {
+        String sensorValueKey = selectedGroupName!.camelCase!;
+
+        int groupIndex = groupData.indexOf(selectedGroupName);
+
+        groupData.removeAt(groupIndex);
+        sensorsData.removeWhere((key, value) => key == sensorValueKey);
+
+        await Utils.transaction(
+          type: "save",
+          db: db!,
+          objectStore: 'monitoringMenu',
+          action: 'readwrite',
+          object: 'monitoringMenuList',
+          data: groupData,
+        );
+
+        await Utils.transaction(
+          type: "save",
+          db: db!,
+          objectStore: 'sensorsData',
+          action: 'readwrite',
+          object: 'sensorsData',
+          data: sensorsData,
+        );
+
+        await Utils.transaction(
+          type: "save",
+          db: db!,
+          objectStore: 'sensorsValue',
+          action: 'readwrite',
+          object: "sv_$sensorValueKey",
+          data: [],
+        );
+
+        debugPrint("Sukses menghapus grup nya ");
+      }
+    } catch (e) {
+      debugPrint("Gagal menghapus grup nya euy, $e");
+    } finally {
+      isRefresh.value = true;
+
+      Get.back();
+
+      update();
     }
   }
 

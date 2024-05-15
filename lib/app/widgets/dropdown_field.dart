@@ -1,6 +1,8 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
@@ -19,6 +21,8 @@ class DropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(HomeController());
+
     return DropdownButtonFormField2(
       isExpanded: true,
       hint: Text(
@@ -53,15 +57,12 @@ class DropdownField extends StatelessWidget {
               value: item,
               child: Row(
                 children: [
-                  IconButton(
-                    splashRadius: 14,
-                    onPressed: () {},
-                    icon: Icon(
-                      FontAwesomeIcons.xmark,
-                      color: AccentColors.maroonColor,
-                      size: 14,
-                    ),
+                  const Icon(
+                    FontAwesomeIcons.solidCircle,
+                    color: AccentColors.tealColor,
+                    size: 8,
                   ),
+                  const SizedBox(width: 10),
                   Text(
                     item,
                     style: AppFonts.regularText.copyWith(
@@ -79,7 +80,9 @@ class DropdownField extends StatelessWidget {
         return null;
       },
       onChanged: (value) {
-        //Do something when selected item is changed.
+        controller.selectedGroupName = value;
+
+        debugPrint(controller.selectedGroupName);
       },
       onSaved: (value) {
         // selectedValue = value.toString();
