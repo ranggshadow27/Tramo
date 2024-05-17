@@ -34,7 +34,7 @@ class SettingButton extends StatelessWidget {
               builder: (context) {
                 controller.saveApiURL.value = false;
 
-                controller.groupNameObx = null;
+                controller.groupNameObs.value = "";
                 return settingDialog(context);
               },
             );

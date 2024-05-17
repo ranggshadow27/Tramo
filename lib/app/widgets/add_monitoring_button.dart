@@ -35,7 +35,7 @@ class AddMonitoringButton extends StatelessWidget {
             showDialog(
               context: context,
               builder: (context) {
-                controller.groupNameObx = null;
+                controller.groupNameObs.value = "";
                 return myCustomDialog(context);
               },
             );
@@ -104,13 +104,18 @@ Widget myCustomDialog(BuildContext context) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GetBuilder<HomeController>(
-              builder: (controller) => myTextField(
+            Obx(
+              () => myTextField(
                 hintText: "VSAT Traffic Monitoring Group",
                 c: controller.monitoringGroupTC,
-                errorText: controller.groupNameObx,
+                errorText:
+                    controller.groupNameObs.value == "" ? null : controller.groupNameObs.value,
                 labelText: "Insert Group Name",
-                onChanged: (p0) {},
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    controller.groupNameObs.value = "";
+                  }
+                },
               ),
             ),
             const SizedBox(height: 6),

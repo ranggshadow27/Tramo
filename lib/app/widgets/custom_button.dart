@@ -7,6 +7,7 @@ Widget myCustomButton({
   required VoidCallback onTap,
   Color? color,
   String? title,
+  Color? titleColor,
 }) {
   return ElevatedButton(
     style: ElevatedButton.styleFrom(
@@ -21,7 +22,7 @@ Widget myCustomButton({
     child: Text(
       title ?? "Submit",
       style: AppFonts.semiBoldText.copyWith(
-        // color: AccentColors.blueColor,
+        color: titleColor ?? BaseColors.primaryText,
         fontSize: 14.0,
       ),
     ),

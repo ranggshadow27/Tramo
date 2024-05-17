@@ -10,7 +10,7 @@ import '../constants/themes/app_colors.dart';
 showInfoNotification({
   required BuildContext context,
   required String description,
-  title = "Alert",
+  title = "Notification",
 }) {
   return ElegantNotification(
     icon: const Icon(

@@ -36,10 +36,10 @@ class HomeController extends GetxController {
 
     if (monitoringList.isNotEmpty) {
       switchPage(activePage.value);
+      isLoading = false;
     }
 
     sensorsValue = await getSensorsValue(activeObjectName.value);
-    // await notificationAlert();
 
     isLoading = false;
     update();
@@ -68,10 +68,9 @@ class HomeController extends GetxController {
   RxInt activePage = 0.obs;
   RxString activeObjectName = "".obs;
   RxString errNameObs = "".obs;
+  RxString groupNameObs = "".obs;
 
   String? selectedGroupName;
-  String? groupNameObx;
-  String? errNameObx;
   String? sensorKey;
   int? sensorIndex;
 
@@ -267,14 +266,14 @@ class HomeController extends GetxController {
         debugPrint(
             "Berhasil menambahkan menu ${activeObjectName.value} berikut isinya \n ->${monitoringList.toString()}");
       } else {
-        groupNameObx = "Group name is already exist.";
+        groupNameObs.value = "Group name is already exist.";
         update();
 
         debugPrint("Hmm.. menu sudah ada");
       }
     } else {
-      groupNameObx = "Group name cannot be empty.";
-      update();
+      groupNameObs.value = "Group name cannot be empty.";
+
       debugPrint("Diisi dulu lah breay");
     }
   }
@@ -565,14 +564,6 @@ class HomeController extends GetxController {
   }
 
   Future saveSensorsData(int index) async {
-    if (sensorsIdTC.text.isNotEmpty) {
-      groupNameObx = null;
-    }
-
-    if (prtgIpTC.text.isNotEmpty) {
-      errNameObx = null;
-    }
-
     if (sensorsIdTC.text.isNotEmpty && prtgIpTC.text.isNotEmpty) {
       try {
         String menuTitle = monitoringList[index].toString().camelCase!;
@@ -628,14 +619,10 @@ class HomeController extends GetxController {
     }
 
     if (sensorsIdTC.text.isEmpty || sensorsIdTC.text == "") {
-      groupNameObx = "Sensor ID cannot be Empty";
-      update();
-      return;
+      groupNameObs.value = "Sensor ID cannot be Empty";
     }
     if (prtgIpTC.text.isEmpty || prtgIpTC.text == "") {
-      errNameObx = "PRTG IP cannot be Empty";
-      update();
-      return;
+      errNameObs.value = "PRTG IP cannot be Empty";
     }
   }
 
@@ -711,14 +698,6 @@ class HomeController extends GetxController {
   updateSensor(int index) async {
     String menuTitle = monitoringList[activePage.value].toString().camelCase!;
 
-    if (sensorsIdTC.text.isNotEmpty) {
-      groupNameObx = null;
-    }
-
-    if (prtgIpTC.text.isNotEmpty) {
-      errNameObx = null;
-    }
-
     if (sensorsIdTC.text.isNotEmpty && prtgIpTC.text.isNotEmpty) {
       Map<String, dynamic> keyedSensorsData = await getSensorsData(key: menuTitle);
 
@@ -753,13 +732,13 @@ class HomeController extends GetxController {
     }
 
     if (sensorsIdTC.text.isEmpty || sensorsIdTC.text == "") {
-      groupNameObx = "Sensor ID cannot be Empty";
-      update();
+      groupNameObs.value = "Sensor ID cannot be Empty";
+
       return;
     }
     if (prtgIpTC.text.isEmpty || prtgIpTC.text == "") {
-      errNameObx = "PRTG IP cannot be Empty";
-      update();
+      errNameObs.value = "PRTG IP cannot be Empty";
+
       return;
     }
 
@@ -768,42 +747,6 @@ class HomeController extends GetxController {
     Get.back();
 
     update();
-  }
-
-  confirmDelete(int index, BuildContext context) async {
-    String data = sensorsValue[index]['name'].toString();
-
-    Get.defaultDialog(
-      contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-      titlePadding: const EdgeInsets.only(top: 20),
-      title: "Confirm Delete",
-      titleStyle: AppFonts.mediumText,
-      middleTextStyle: AppFonts.regularText.copyWith(
-        fontSize: 14.0,
-      ),
-      middleText: "Are you sure want to delete $data sensor?",
-      actions: [
-        OutlinedButton(
-          onPressed: () => Get.back(),
-          child: Text(
-            "No",
-            style: AppFonts.regularText.copyWith(fontSize: 12.0),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            await deleteSensor(index);
-            Get.back();
-            showInfoNotification(
-                context: context, description: "Sensor $data deleted successfully");
-          },
-          child: Text(
-            "Yes",
-            style: AppFonts.regularText.copyWith(fontSize: 12.0),
-          ),
-        ),
-      ],
-    );
   }
 
   deleteSensor(int index) async {
@@ -854,6 +797,8 @@ class HomeController extends GetxController {
     );
 
     debugPrint("-----------> Alert Sensor ${sensorsValue[index]['name']} After $isAlertEnable");
+
+    Get.back();
 
     update();
   }

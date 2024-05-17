@@ -119,7 +119,7 @@ class HomeView extends GetView<HomeController> {
                         controller: controller,
                       ),
                       const Spacer(),
-                      const SettingButton(title: "Settings"),
+                      SettingButton(title: "Settings"),
                     ],
                   ),
                 );

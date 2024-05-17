@@ -83,6 +83,8 @@ Widget settingDialog(BuildContext context) {
                     onTap: () {
                       if (controller.renameGroupTC.text.isNotEmpty ||
                           controller.renameGroupTC.text != "") {
+                        Get.back();
+
                         showDialog(context: context, builder: editGroupDialog);
                       } else {
                         controller.errNameObs.value = "Please select group first!";

@@ -35,6 +35,9 @@ class AddSensorButton extends StatelessWidget {
           onTap: () {
             controller.prtgIpTC.clear();
             controller.sensorsIdTC.clear();
+            controller.errNameObs.value = "";
+            controller.groupNameObs.value = "";
+
             showDialog(
               context: context,
               builder: (context) => myCustomDialog(context, index),
@@ -102,25 +105,34 @@ Widget myCustomDialog(BuildContext context, int index) {
         padding: const EdgeInsets.all(32),
         child: Column(
           children: [
-            GetBuilder<HomeController>(
-              builder: (controller) => myTextField(
+            Obx(
+              () => myTextField(
                 hintText: "ex. 25609",
                 c: controller.sensorsIdTC,
-                errorText: controller.groupNameObx,
+                errorText:
+                    controller.groupNameObs.value == "" ? null : controller.groupNameObs.value,
                 labelText: "Insert the Sensor ID from PRTG",
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: (p0) {},
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    controller.groupNameObs.value = "";
+                  }
+                },
               ),
             ),
             const SizedBox(height: 8),
-            GetBuilder<HomeController>(
-              builder: (controller) => myTextField(
+            Obx(
+              () => myTextField(
                 hintText: "ex. 202.55.175.235:8443",
                 c: controller.prtgIpTC,
-                errorText: controller.errNameObx,
+                errorText: controller.errNameObs.value == "" ? null : controller.errNameObs.value,
                 labelText: "Insert the PRTG IP",
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: (p0) {},
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    controller.errNameObs.value = "";
+                  }
+                },
               ),
             ),
             const SizedBox(height: 8),
