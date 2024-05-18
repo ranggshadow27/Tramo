@@ -36,7 +36,27 @@ class ChartWidget extends StatelessWidget {
           previousValue > element ? previousValue.toDouble() : element.toDouble(),
     );
 
-    double currentThresold = maxVal * .75;
+    late double latestAverage;
+    late int totalAvg;
+
+    if (mainData.length >= 10) {
+      // totalAvg = 10;
+      latestAverage = mainData.reversed.toList().sublist(0, 10).fold(
+            0,
+            (prevVal, element) => prevVal > element ? prevVal : element,
+          );
+    } else {
+      // totalAvg = mainData.reversed.toList().sublist(0, mainData.length).length;
+
+      latestAverage = mainData.reversed.toList().sublist(0, mainData.length).fold(
+            0,
+            (prevVal, element) => prevVal > element ? prevVal : element,
+          );
+    }
+
+    // double currentThresold = (latestAverage / totalAvg) * .85;
+    double majorThresold = latestAverage * .2;
+    double minorThresold = latestAverage * .7;
 
     if (maxVal <= 20000) {
       maxVal += 2000;
@@ -261,9 +281,9 @@ class ChartWidget extends StatelessWidget {
                   mainData.length,
                   (index) => FlSpot(index.toDouble(), mainData[index].toDouble()),
                 ),
-                color: latestData >= currentThresold
+                color: latestData >= minorThresold
                     ? AccentColors.tealColor
-                    : latestData < currentThresold && latestData > currentThresold / 2
+                    : latestData < minorThresold && latestData > majorThresold
                         ? AccentColors.yellowColor
                         : AccentColors.maroonColor,
                 isCurved: true,
@@ -272,14 +292,14 @@ class ChartWidget extends StatelessWidget {
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
-                    colors: latestData >= currentThresold
+                    colors: latestData >= minorThresold
                         ? [
                             AccentColors.tealColor.withOpacity(.5),
                             AccentColors.tealColor.withOpacity(.25),
                             AccentColors.tealColor.withOpacity(.05),
                             AccentColors.tealColor.withOpacity(0),
                           ]
-                        : latestData < currentThresold && latestData > currentThresold / 2
+                        : latestData < minorThresold && latestData > majorThresold
                             ? [
                                 AccentColors.yellowColor.withOpacity(.5),
                                 AccentColors.yellowColor.withOpacity(.25),

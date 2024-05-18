@@ -824,6 +824,8 @@ class HomeController extends GetxController {
         lastestData = reversedData.sublist(0, reversedData.length);
       }
 
+      debugPrint("----------------------> Latest Data :\n$lastestData");
+
       // double maxlastestData = lastestData.fold(0, (prev, element) => prev + element);
 
       double maxlastestData = lastestData.fold(
@@ -833,8 +835,8 @@ class HomeController extends GetxController {
 
       // int maxVal = sensorsValue.reduce((prev, element) => null);
 
-      double thresoldMajor = avgData * 0.5;
-      double thresoldMinor = avgData * 0.85;
+      double thresoldMajor = avgData * 0.3;
+      double thresoldMinor = avgData * 0.7;
 
       debugPrint("jumlah lastestData data ke $i = ${lastestData.length}");
       debugPrint("avgData ke $i = $avgData");
@@ -854,10 +856,10 @@ class HomeController extends GetxController {
 
         if (currentData <= thresoldMinor && currentData >= thresoldMajor) {
           debugPrint("----------------------> Playing Minor Alarm");
-          await audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
-
           showErrorNotification(
               context: context, description: "$sensorName is low Traffic", type: "minor");
+
+          await audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
         }
       }
     }

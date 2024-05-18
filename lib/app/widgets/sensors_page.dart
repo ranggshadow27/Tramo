@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tramo/app/modules/home/controllers/home_controller.dart';
 import 'package:tramo/app/widgets/add_sensors_button.dart';
 import 'package:tramo/app/widgets/chart_widget.dart';
-import 'package:tramo/app/widgets/confirm_delete_dialog.dart';
 
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
-import 'custom_button.dart';
-import 'custom_textfield.dart';
 import 'info_notification.dart';
 import 'update_dialog.dart';
 
@@ -304,18 +300,18 @@ class SensorsPage extends StatelessWidget {
                             //     ),
                             //   ),
                             // ),
-                            // Positioned(
-                            //   top: 60,
-                            //   child: IconButton.outlined(
-                            //     onPressed: () => controller.playSound(),
-                            //     iconSize: 12,
-                            //     splashRadius: 12,
-                            //     icon: const Icon(
-                            //       FontAwesomeIcons.soundcloud,
-                            //       color: AccentColors.tealColor,
-                            //     ),
-                            //   ),
-                            // ),
+                            Positioned(
+                              top: 60,
+                              child: IconButton.outlined(
+                                onPressed: () => controller.playSound(),
+                                iconSize: 12,
+                                splashRadius: 12,
+                                icon: const Icon(
+                                  FontAwesomeIcons.soundcloud,
+                                  color: AccentColors.tealColor,
+                                ),
+                              ),
+                            ),
                           ],
                         );
                       },
