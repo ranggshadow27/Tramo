@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tramo/app/widgets/confirm_delete_dialog.dart';
 import 'package:tramo/app/widgets/edit_group_dialog.dart';
 
 import '../constants/themes/app_colors.dart';
@@ -98,7 +99,20 @@ Widget settingDialog(BuildContext context) {
                 Expanded(
                   flex: 2,
                   child: myCustomButton(
-                    onTap: () => controller.deleteMonitoringGroup(),
+                    onTap: () {
+                      if (controller.renameGroupTC.text.isNotEmpty ||
+                          controller.renameGroupTC.text != "") {
+                        showDialog(
+                          context: context,
+                          builder: (context) => confirmDeleteDialog(
+                            "This action will delete ${controller.selectedGroupName!} from monitoring group",
+                            () => controller.deleteMonitoringGroup(),
+                          ),
+                        );
+                      } else {
+                        controller.errNameObs.value = "Please select group first!";
+                      }
+                    },
                     color: AccentColors.maroonColor,
                     title: "Delete",
                   ),
@@ -113,7 +127,7 @@ Widget settingDialog(BuildContext context) {
                 fontSize: 14.0,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -128,7 +142,7 @@ Widget settingDialog(BuildContext context) {
                 Expanded(
                   flex: 2,
                   child: myCustomButton(
-                    onTap: () => controller.importProfile(),
+                    onTap: () => controller.importProfile(context),
                     title: "Import",
                     color: BaseColors.secondaryBackground,
                   ),

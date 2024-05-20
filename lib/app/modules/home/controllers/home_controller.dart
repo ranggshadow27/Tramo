@@ -16,6 +16,8 @@ import 'package:tramo/app/widgets/info_notification.dart';
 
 import 'dart:html' as html;
 
+import 'package:tramo/app/widgets/loading_dialog.dart';
+
 class HomeController extends GetxController {
   IdbFactory databaseFactory = getIdbFactory()!;
   Database? db;
@@ -326,6 +328,7 @@ class HomeController extends GetxController {
       isRefresh.value = true;
 
       Get.back();
+      Get.back();
 
       update();
     }
@@ -461,7 +464,7 @@ class HomeController extends GetxController {
   Future saveSensorValue(
     String objectName,
     int index,
-    int value,
+    int apiValue,
     String sensorName,
   ) async {
     List sensorsValueList = sensorsValue;
@@ -469,14 +472,17 @@ class HomeController extends GetxController {
     DateTime now = DateTime.now();
     String timeValue = DateFormat.Hm().format(now);
 
-    var senValLength = sensorsValueList[index]['time'] ?? [];
+    List timeList = sensorsValueList[index]['time'] ?? [];
+    List valueList = sensorsValueList[index]['value'] ?? [];
 
-    debugPrint("ini lastest timeValue dari index ke $index -> ${senValLength.isEmpty}");
+    // debugPrint("ini lastest timeValue dari index ke $index -> ${valueList.isEmpty}");
 
-    if (senValLength.isEmpty || senValLength.last != timeValue) {
-      Transaction txn = db!.transaction('sensorsValue', 'readwrite');
-      ObjectStore store = txn.objectStore('sensorsValue');
+    Transaction txn = db!.transaction('sensorsValue', 'readwrite');
+    ObjectStore store = txn.objectStore('sensorsValue');
 
+    sensorsValueList[index].addAll({'name': sensorName});
+
+    if (timeList.isNotEmpty && valueList.isNotEmpty) {
       int maxValue = 60;
       int countMaxLength = sensorsValueList[index]['value'].length - maxValue;
 
@@ -490,20 +496,57 @@ class HomeController extends GetxController {
         sensorsValueList[index]['time'].removeAt(0);
       }
 
-      sensorsValueList[index]['value'].add(value);
-      sensorsValueList[index].addAll({'name': sensorName});
+      if (timeList.last != timeValue) {
+        debugPrint("----------------> Jalankan Metode Tambah");
+
+        sensorsValueList[index]['value'].add(apiValue);
+        sensorsValueList[index]['time'].add(timeValue);
+
+        await store.put(sensorsValueList, objectName);
+        await txn.completed;
+
+        sensorsValue = sensorsValueList;
+
+        // debugPrint("Ini sensorsValueList -> \n$sensorsValue");
+
+        return sensorsValue[index];
+      }
+
+      if (apiValue < valueList.last && timeList.last == timeValue) {
+        debugPrint("----------------> Jalankan Metode Ganti");
+        int indexOfLastValue = valueList.length;
+        debugPrint(
+            "----------------> Ganti index ke $indexOfLastValue dari jumlah ${sensorsValueList[index]['value'].length} ");
+
+        debugPrint("yang datanya adalah: \n--->${sensorsValueList[index]['value'].last}");
+
+        sensorsValueList[index]['value'].last = apiValue;
+
+        debugPrint("Setelah diganti menjadi: \n--->${sensorsValueList[index]['value'].last}");
+
+        await store.put(sensorsValueList, objectName);
+        await txn.completed;
+
+        sensorsValue = sensorsValueList;
+
+        // debugPrint("Ini sensorsValueList -> \n$sensorsValue");
+
+        return sensorsValue[index];
+      }
+    } else {
+      debugPrint("----------------> Jalankan Metode Tambah Dari List Kosong");
+
+      sensorsValueList[index]['value'].add(apiValue);
       sensorsValueList[index]['time'].add(timeValue);
 
       await store.put(sensorsValueList, objectName);
       await txn.completed;
 
-      debugPrint("Ini sensorsValueList setelah di Add-> \n${sensorsValueList[index]}");
-      debugPrint("Ini sensorsValueList -> \n$sensorsValueList");
       sensorsValue = sensorsValueList;
 
+      // debugPrint("Ini sensorsValueList -> \n$sensorsValue");
+
       return sensorsValue[index];
-    } else {
-      debugPrint("Time valuenya sama, gajadi ditambah");
     }
   }
 
@@ -697,6 +740,15 @@ class HomeController extends GetxController {
 
   updateSensor(int index) async {
     String menuTitle = monitoringList[activePage.value].toString().camelCase!;
+    String currentSensorID = sensorsData[menuTitle]['Id'][index].toString();
+    String currentPrtgIP = sensorsData[menuTitle]['prtgIp'][index].toString();
+
+    if (sensorsIdTC.text == currentSensorID && prtgIpTC.text == currentPrtgIP) {
+      groupNameObs.value = "Please input a different Sensor ID";
+      errNameObs.value = "Please input a different PRTG IP";
+
+      return;
+    }
 
     if (sensorsIdTC.text.isNotEmpty && prtgIpTC.text.isNotEmpty) {
       Map<String, dynamic> keyedSensorsData = await getSensorsData(key: menuTitle);
@@ -729,6 +781,10 @@ class HomeController extends GetxController {
         data: sensorsValue,
         object: activeObjectName.value,
       );
+
+      Get.back();
+
+      update();
     }
 
     if (sensorsIdTC.text.isEmpty || sensorsIdTC.text == "") {
@@ -744,9 +800,9 @@ class HomeController extends GetxController {
 
     sensorsIdTC.clear();
     prtgIpTC.clear();
-    Get.back();
 
-    update();
+    errNameObs.value = "";
+    groupNameObs.value = "";
   }
 
   deleteSensor(int index) async {
@@ -893,19 +949,26 @@ class HomeController extends GetxController {
     html.Url.revokeObjectUrl(url);
   }
 
-  importProfile() async {
+  importProfile(BuildContext context) async {
     final input = html.FileUploadInputElement()..accept = '.json';
 
     input.onChange.listen((event) async {
       final files = input.files;
 
       if (files != null && files.isNotEmpty) {
+        Get.back();
+
         final file = files.first;
 
         final reader = html.FileReader();
         reader.readAsText(file);
 
         reader.onLoadEnd.listen((event) async {
+          showDialog(
+            context: context,
+            builder: (context) => loadingDialog(),
+          );
+
           final jsonString = reader.result as String;
 
           Map importedJson = jsonDecode(jsonString);
@@ -915,9 +978,6 @@ class HomeController extends GetxController {
           Map<String, dynamic> newSensorsData =
               Map<String, dynamic>.from(importedJson['sensorsData']);
 
-          // debugPrint("1. Berikut importedJsonnya :\n$importedJson");
-          // debugPrint("2. Berikut newSensorsData :\n$newSensorsData");
-
           sensorsData.value = newSensorsData;
 
           for (var i = 0; i < monitoringList.length; i++) {
@@ -925,11 +985,7 @@ class HomeController extends GetxController {
 
             List sensorsValueList = [];
 
-            // debugPrint("3. $objectStore ");
-
             if (newSensorsData[objectStore] != null) {
-              // debugPrint("4. $sensorsValueList ");
-
               for (var i = 0; i < newSensorsData[objectStore]["Id"].length; i++) {
                 sensorsValueList.add({
                   "sensorId": newSensorsData[objectStore]["Id"][i],
@@ -937,7 +993,6 @@ class HomeController extends GetxController {
                   "time": [],
                 });
               }
-              // debugPrint("5. $sensorsValueList ");
             }
 
             await Utils.transaction(
@@ -951,8 +1006,6 @@ class HomeController extends GetxController {
 
             sensorsValue = sensorsValueList;
           }
-
-          // debugPrint("6. $sensorsValue ");
 
           isRefresh.value = true;
 
@@ -973,12 +1026,12 @@ class HomeController extends GetxController {
             object: 'sensorsData',
             data: newSensorsData,
           );
-          update();
-
-          // debugPrint("2. Berikut newSensorsData :\n$sensorsData");
-
           Get.back();
+
+          update();
         });
+
+        showInfoNotification(context: context, description: "Profile Imported Successfully!");
       } else {
         debugPrint("File yg di Import Tidak ada CUY!");
       }
@@ -987,5 +1040,32 @@ class HomeController extends GetxController {
     html.document.body!.children.add(input);
     input.click();
     input.remove();
+  }
+
+  resetSensorValue(BuildContext context) async {
+    String objectStore = selectedGroupName!.camelCase!;
+
+    isRefresh.value = true;
+
+    for (var i = 0; i < sensorsValue.length; i++) {
+      sensorsValue[i]['value'].clear();
+      sensorsValue[i]['time'].clear();
+    }
+
+    await Utils.transaction(
+      type: "save",
+      db: db!,
+      objectStore: 'sensorsValue',
+      action: 'readwrite',
+      object: 'sv_$objectStore',
+      data: sensorsValue,
+    );
+
+    update();
+    Get.back();
+    Get.back();
+
+    showInfoNotification(
+        context: context, description: "Success resetting sensors data in ${selectedGroupName!}");
   }
 }

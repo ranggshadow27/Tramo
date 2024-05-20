@@ -5,7 +5,7 @@ import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
 import '../widgets/custom_button.dart';
 
-Widget confirmDeleteDialog(String data, VoidCallback onTap) {
+Widget confirmResetDataDialog(String groupData, VoidCallback onTap) {
   return Dialog(
     backgroundColor: BaseColors.secondaryBackground,
     shape: RoundedRectangleBorder(
@@ -39,7 +39,7 @@ Widget confirmDeleteDialog(String data, VoidCallback onTap) {
             height: 60,
             child: Center(
               child: Text(
-                data,
+                "This action will reset all sensors traffic data in $groupData group",
                 textAlign: TextAlign.center,
                 style: AppFonts.regularText.copyWith(
                   fontSize: 14.0,
@@ -54,7 +54,7 @@ Widget confirmDeleteDialog(String data, VoidCallback onTap) {
           myCustomButton(
             onTap: onTap,
             color: AccentColors.redColor,
-            title: "Delete Sensor",
+            title: "Reset Data",
           ),
           myCustomButton(
             onTap: () => Get.back(),

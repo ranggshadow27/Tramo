@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tramo/app/widgets/confirm_reset_data_dialog.dart';
 
 import '../constants/themes/app_colors.dart';
 import '../constants/themes/font_style.dart';
 import '../modules/home/controllers/home_controller.dart';
+import 'confirm_delete_dialog.dart';
 import 'custom_button.dart';
 import 'custom_textfield.dart';
 
@@ -68,7 +70,15 @@ Widget editGroupDialog(BuildContext context) {
                   )),
             const SizedBox(height: 4),
             myCustomButton(
-              onTap: () => controller.exportProfile(),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => confirmDeleteDialog(
+                    "This action will delete ${controller.selectedGroupName!} from monitoring group",
+                    () => controller.deleteMonitoringGroup(),
+                  ),
+                );
+              },
               color: AccentColors.maroonColor,
               title: "Remove Group",
             ),
@@ -86,7 +96,15 @@ Widget editGroupDialog(BuildContext context) {
                 Expanded(
                   flex: 3,
                   child: myCustomButton(
-                    onTap: () {},
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => confirmResetDataDialog(
+                          controller.selectedGroupName!,
+                          () => controller.resetSensorValue(context),
+                        ),
+                      );
+                    },
                     color: BaseColors.secondaryBackground,
                     title: "Reset Data",
                   ),

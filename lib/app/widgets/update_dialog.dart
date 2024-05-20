@@ -90,12 +90,12 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
               color: AccentColors.redColor,
               title: "Delete",
               onTap: () {
+                String data = controller.sensorsValue[index]['name'].toString();
                 Get.back();
                 showDialog(
                   context: context,
                   builder: (context) => confirmDeleteDialog(
-                    index,
-                    controller.sensorsValue[index]['name'].toString(),
+                    "This action will remove sensor $data from sensor group",
                     () async {
                       await controller.deleteSensor(index);
                       Get.back();

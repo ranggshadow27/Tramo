@@ -75,38 +75,45 @@ class ChartWidget extends StatelessWidget {
       var boxWidth = ((Get.width / (constraints.maxWidth + 10)) - 1).ceil();
 
       return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: BaseColors.navbarBackground.withOpacity(.5),
         ),
-        height: 300,
-        padding: const EdgeInsets.only(top: 20, bottom: 20, right: 30, left: 24),
         child: LineChart(
           LineChartData(
             gridData: FlGridData(
               show: true,
               drawHorizontalLine: true,
               getDrawingHorizontalLine: (value) => FlLine(
-                color: Colors.cyan.withOpacity(.2),
-                strokeWidth: .3,
+                color: BaseColors.primaryText.withOpacity(.2),
+                strokeWidth: .2,
+                dashArray: [3, 5],
               ),
-              drawVerticalLine: true,
+              drawVerticalLine: false,
               getDrawingVerticalLine: (value) => FlLine(
-                color: Colors.cyan.withOpacity(.2),
-                strokeWidth: .3,
+                color: BaseColors.primaryText.withOpacity(.2),
+                strokeWidth: .5,
+                dashArray: [5, 5],
               ),
-              horizontalInterval: maxVal >= 800000
-                  ? 200000
-                  : maxVal <= 350000
-                      ? maxVal <= 20000
-                          ? 2000
-                          : 50000
-                      : 100000,
+              horizontalInterval: maxVal >= 2000000
+                  ? 500000
+                  : maxVal >= 1000000
+                      ? 400000
+                      : maxVal >= 800000
+                          ? 200000
+                          : maxVal <= 400000 && maxVal > 20000
+                              ? 100000
+                              : maxVal <= 20000 && maxVal > 200
+                                  ? 4000
+                                  : maxVal <= 200
+                                      ? 100
+                                      : 100000,
             ),
             titlesData: FlTitlesData(
               show: true,
               topTitles: AxisTitles(
-                axisNameSize: 22,
+                axisNameSize: 20,
                 axisNameWidget: SizedBox(
                   width: boxWidth < 2
                       ? Get.width * .7
@@ -114,7 +121,7 @@ class ChartWidget extends StatelessWidget {
                           ? Get.width * .28
                           : boxWidth == 3
                               ? Get.width * .21
-                              : Get.width * .15,
+                              : Get.width * .18,
                   child: SensorDetailWidget(
                       chartTitle: "$chartTitle",
                       onTap: () {
@@ -142,13 +149,19 @@ class ChartWidget extends StatelessWidget {
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 40,
-                  interval: maxVal >= 800000
-                      ? 200000
-                      : maxVal <= 350000 && maxVal > 20000
-                          ? 50000
-                          : maxVal <= 20000
-                              ? 2000
-                              : 100000,
+                  interval: maxVal >= 2000000
+                      ? 500000
+                      : maxVal >= 1000000
+                          ? 400000
+                          : maxVal >= 800000
+                              ? 200000
+                              : maxVal <= 400000 && maxVal > 20000
+                                  ? 100000
+                                  : maxVal <= 20000 && maxVal > 200
+                                      ? 4000
+                                      : maxVal <= 200
+                                          ? 100
+                                          : 100000,
                   getTitlesWidget: (value, meta) {
                     for (var i = 0; i < mainData.length; i++) {
                       if (value == 0) {
@@ -244,13 +257,16 @@ class ChartWidget extends StatelessWidget {
             minY: 0,
             maxX: mainData.length.toDouble() - 1,
             minX: 0,
-            backgroundColor: BaseColors.primaryBackground,
-            clipData: FlClipData.all(),
+            // backgroundColor: BaseColors.navbarBackground.withOpacity(.5),
+            clipData: FlClipData.none(),
             borderData: FlBorderData(
-              show: true,
-              border: Border.all(
-                color: Colors.cyan.withOpacity(.2),
-                width: 1,
+              show: false,
+              border: Border(
+                bottom: BorderSide(
+                  style: BorderStyle.solid,
+                  color: Colors.cyan.withOpacity(.2),
+                  width: 1,
+                ),
               ),
             ),
             lineTouchData: LineTouchData(
@@ -287,29 +303,29 @@ class ChartWidget extends StatelessWidget {
                         ? AccentColors.yellowColor
                         : AccentColors.maroonColor,
                 isCurved: true,
-                barWidth: 3,
+                barWidth: 2,
                 isStrokeCapRound: true,
                 belowBarData: BarAreaData(
                   show: true,
                   gradient: LinearGradient(
                     colors: latestData >= minorThresold
                         ? [
-                            AccentColors.tealColor.withOpacity(.5),
-                            AccentColors.tealColor.withOpacity(.25),
+                            AccentColors.tealColor.withOpacity(.2),
                             AccentColors.tealColor.withOpacity(.05),
+                            AccentColors.tealColor.withOpacity(0),
                             AccentColors.tealColor.withOpacity(0),
                           ]
                         : latestData < minorThresold && latestData > majorThresold
                             ? [
-                                AccentColors.yellowColor.withOpacity(.5),
-                                AccentColors.yellowColor.withOpacity(.25),
-                                AccentColors.yellowColor.withOpacity(0.05),
+                                AccentColors.yellowColor.withOpacity(.2),
+                                AccentColors.yellowColor.withOpacity(.05),
+                                AccentColors.yellowColor.withOpacity(0),
                                 AccentColors.yellowColor.withOpacity(0),
                               ]
                             : [
-                                AccentColors.maroonColor.withOpacity(.5),
-                                AccentColors.maroonColor.withOpacity(.25),
+                                AccentColors.maroonColor.withOpacity(.2),
                                 AccentColors.maroonColor.withOpacity(.05),
+                                AccentColors.maroonColor.withOpacity(0),
                                 AccentColors.maroonColor.withOpacity(0),
                               ],
                     begin: Alignment.topCenter,
