@@ -32,6 +32,7 @@ Widget myTextField({
       ),
       labelStyle: AppFonts.regularText.copyWith(
         color: BaseColors.primaryText.withOpacity(.3),
+        fontSize: 14.0,
       ),
       labelText: labelText,
       alignLabelWithHint: true,

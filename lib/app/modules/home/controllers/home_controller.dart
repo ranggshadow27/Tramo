@@ -27,6 +27,9 @@ class HomeController extends GetxController {
     super.onInit();
     await initDatabase();
 
+    final audioplayer = AudioPlayer();
+    audioplayer.setReleaseMode(ReleaseMode.release);
+
     activePage.value = await getLastActivePage();
 
     dropdownData = await getMonitoringGroup();
@@ -712,6 +715,7 @@ class HomeController extends GetxController {
             timer = Timer.periodic(const Duration(seconds: 20), (timer) async {
               isRefresh.value = true;
               debugPrint("IS NOTIFICATION IS ACTIVE? ---------------");
+
               await notificationAlert(context);
 
               update();
@@ -860,7 +864,6 @@ class HomeController extends GetxController {
   }
 
   notificationAlert(BuildContext context) async {
-    // await audioplayer.setPlayerMode(PlayerMode.lowLatency);
     String menuTitle = monitoringList[activePage.value].toString().camelCase!;
 
     debugPrint("----------------------> Thresold Logic");
@@ -902,12 +905,14 @@ class HomeController extends GetxController {
       debugPrint("thresoldMajor data ke $i = $thresoldMajor");
 
       if (isNotificationPlay == false && isAlertEnable == true) {
+        audioplayer.resume();
+
         if (currentData <= thresoldMajor || currentData < 10) {
           debugPrint("----------------------> Playing Major Alarm");
           showErrorNotification(
               context: context, description: "$sensorName is low Traffic", type: "major");
 
-          await audioplayer.play(DeviceFileSource('/assets/sounds/major_alarm.wav'), volume: .8);
+          audioplayer.play(DeviceFileSource('/assets/sounds/major_alarm.wav'), volume: .8);
         }
 
         if (currentData <= thresoldMinor && currentData >= thresoldMajor) {
@@ -915,11 +920,13 @@ class HomeController extends GetxController {
           showErrorNotification(
               context: context, description: "$sensorName is low Traffic", type: "minor");
 
-          await audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
+          audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
         }
       }
     }
 
+    audioplayer.stop();
+    audioplayer.release();
     isNotificationPlay = false;
   }
 

@@ -58,7 +58,9 @@ class ChartWidget extends StatelessWidget {
     double majorThresold = latestAverage * .2;
     double minorThresold = latestAverage * .7;
 
-    if (maxVal <= 20000) {
+    if (maxVal <= 500) {
+      maxVal += 100;
+    } else if (maxVal <= 20000) {
       maxVal += 2000;
     } else if (maxVal >= 800000) {
       maxVal += 200000;
@@ -96,19 +98,19 @@ class ChartWidget extends StatelessWidget {
                 strokeWidth: .5,
                 dashArray: [5, 5],
               ),
-              horizontalInterval: maxVal >= 2000000
-                  ? 500000
-                  : maxVal >= 1000000
-                      ? 400000
-                      : maxVal >= 800000
-                          ? 200000
-                          : maxVal <= 400000 && maxVal > 20000
-                              ? 100000
-                              : maxVal <= 20000 && maxVal > 200
-                                  ? 4000
-                                  : maxVal <= 200
-                                      ? 100
-                                      : 100000,
+              horizontalInterval: maxVal < 500
+                  ? 50
+                  : maxVal >= 3000000
+                      ? 500000
+                      : maxVal >= 1000000
+                          ? 400000
+                          : maxVal >= 800000
+                              ? 200000
+                              : maxVal <= 400000 && maxVal > 20000
+                                  ? 100000
+                                  : maxVal <= 20000 && maxVal > 1000
+                                      ? 4000
+                                      : 150000,
             ),
             titlesData: FlTitlesData(
               show: true,
@@ -149,19 +151,19 @@ class ChartWidget extends StatelessWidget {
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 40,
-                  interval: maxVal >= 2000000
-                      ? 500000
-                      : maxVal >= 1000000
-                          ? 400000
-                          : maxVal >= 800000
-                              ? 200000
-                              : maxVal <= 400000 && maxVal > 20000
-                                  ? 100000
-                                  : maxVal <= 20000 && maxVal > 200
-                                      ? 4000
-                                      : maxVal <= 200
-                                          ? 100
-                                          : 100000,
+                  interval: maxVal < 500
+                      ? 50
+                      : maxVal >= 2000000
+                          ? 500000
+                          : maxVal >= 1000000
+                              ? 400000
+                              : maxVal >= 800000
+                                  ? 200000
+                                  : maxVal <= 400000 && maxVal > 20000
+                                      ? 100000
+                                      : maxVal <= 20000 && maxVal > 1000
+                                          ? 4000
+                                          : 150000,
                   getTitlesWidget: (value, meta) {
                     for (var i = 0; i < mainData.length; i++) {
                       if (value == 0) {
@@ -176,7 +178,7 @@ class ChartWidget extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.only(right: 6),
                       child: Text(
-                        "${(value).toInt() ~/ 1000}K",
+                        "${(value).toInt() < 500 ? (value).toInt() : (value).toInt() ~/ 1000}K",
                         textAlign: TextAlign.right,
                         style: AppFonts.regularText.copyWith(
                           color: BaseColors.secondaryText,
@@ -258,7 +260,7 @@ class ChartWidget extends StatelessWidget {
             maxX: mainData.length.toDouble() - 1,
             minX: 0,
             // backgroundColor: BaseColors.navbarBackground.withOpacity(.5),
-            clipData: FlClipData.none(),
+            clipData: const FlClipData.none(),
             borderData: FlBorderData(
               show: false,
               border: Border(
@@ -269,11 +271,17 @@ class ChartWidget extends StatelessWidget {
                 ),
               ),
             ),
+
             lineTouchData: LineTouchData(
               enabled: true,
               touchTooltipData: LineTouchTooltipData(
                 maxContentWidth: 200,
-                tooltipBgColor: BaseColors.secondaryBackground.withOpacity(.8),
+
+                // tooltipBgColor: BaseColors.secondaryBackground.withOpacity(.8),
+                getTooltipColor: (touchedSpot) => BaseColors.secondaryBackground.withOpacity(.8),
+
+                showOnTopOfTheChartBoxArea: true,
+
                 getTooltipItems: (touchedSpots) {
                   return touchedSpots.map((e) {
                     final flSpot = e;

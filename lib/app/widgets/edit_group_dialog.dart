@@ -111,7 +111,7 @@ Widget editGroupDialog(BuildContext context) {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: myCustomButton(
                     onTap: () {},
                     color: BaseColors.secondaryBackground,

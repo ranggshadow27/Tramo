@@ -227,7 +227,7 @@ class SensorsPage extends StatelessWidget {
                                     sensorID: sensorId[index].toString(),
                                     prtgIP: prtgIP[index].toString(),
                                   ),
-                                  IconButton.outlined(
+                                  IconButton(
                                     onPressed: () => showDialog(
                                       context: context,
                                       builder: (context) {
@@ -253,26 +253,11 @@ class SensorsPage extends StatelessWidget {
                                       color: BaseColors.secondaryText,
                                     ),
                                   ),
-                                  // Positioned(
-                                  //   top: 30,
-                                  //   child: IconButton.outlined(
-                                  //     onPressed: () => controller.disableAlert(index),
-                                  //     iconSize: 12,
-                                  //     splashRadius: 12,
-                                  //     icon: Icon(
-                                  //       sensorAlert[index] == true
-                                  //           ? FontAwesomeIcons.solidBell
-                                  //           : FontAwesomeIcons.bellSlash,
-                                  //       color: AccentColors.tealColor,
-                                  //     ),
-                                  //   ),
-                                  // ),
-
                                   Positioned(
                                     bottom: 0,
                                     child: sensorAlert[index] == true
                                         ? const SizedBox()
-                                        : IconButton.outlined(
+                                        : IconButton(
                                             onPressed: () {
                                               controller.disableAlert(index);
                                               showInfoNotification(
@@ -289,31 +274,9 @@ class SensorsPage extends StatelessWidget {
                                             ),
                                           ),
                                   ),
-                                  // Positioned(
-                                  //   right: 0,
-                                  //   child: IconButton.outlined(
-                                  //     onPressed: () => showDialog(
-                                  //       context: context,
-                                  //       builder: (context) => confirmDeleteDialog(
-                                  //         index,
-                                  //         controller.sensorsValue[index]['name'].toString(),
-                                  //         () async {
-                                  //           await controller.deleteSensor(index);
-                                  //           Get.back();
-                                  //         },
-                                  //       ),
-                                  //     ),
-                                  //     iconSize: 12,
-                                  //     splashRadius: 12,
-                                  //     icon: const Icon(
-                                  //       FontAwesomeIcons.xmark,
-                                  //       color: AccentColors.redColor,
-                                  //     ),
-                                  //   ),
-                                  // ),
                                   Positioned(
                                     top: 60,
-                                    child: IconButton.outlined(
+                                    child: IconButton(
                                       onPressed: () => controller.playSound(),
                                       iconSize: 12,
                                       splashRadius: 12,
