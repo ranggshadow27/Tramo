@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/login/bindings/login_binding.dart';
+import '../modules/login/views/login_view.dart';
 import '../modules/monitoring/bindings/monitoring_binding.dart';
 import '../modules/monitoring/views/monitoring_view.dart';
 
@@ -22,6 +24,11 @@ class AppPages {
       name: _Paths.MONITORING,
       page: () => const MonitoringView(),
       binding: MonitoringBinding(),
+    ),
+    GetPage(
+      name: _Paths.LOGIN,
+      page: () => const LoginView(),
+      binding: LoginBinding(),
     ),
   ];
 }

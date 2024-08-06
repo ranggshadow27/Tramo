@@ -11,6 +11,7 @@ Widget myTextField({
   required TextEditingController c,
   List<TextInputFormatter>? inputFormatters,
   required void Function(String) onChanged,
+  bool? isPassword,
 }) {
   return TextFormField(
     onChanged: onChanged,
@@ -19,6 +20,7 @@ Widget myTextField({
       color: BaseColors.primaryText,
     ),
     inputFormatters: inputFormatters,
+    obscureText: isPassword ?? false,
     decoration: InputDecoration(
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -36,7 +38,8 @@ Widget myTextField({
       ),
       labelText: labelText,
       alignLabelWithHint: true,
-      floatingLabelStyle: AppFonts.mediumText.copyWith(color: AccentColors.tealColor),
+      floatingLabelStyle:
+          AppFonts.mediumText.copyWith(color: AccentColors.tealColor),
       errorText: errorText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

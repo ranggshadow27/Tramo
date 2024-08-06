@@ -9,7 +9,7 @@ void main() async {
     GetMaterialApp(
       title: "Tramo",
       debugShowCheckedModeBanner: false,
-      initialRoute: AppPages.INITIAL,
+      initialRoute: Routes.LOGIN,
       getPages: AppPages.routes,
     ),
   );
