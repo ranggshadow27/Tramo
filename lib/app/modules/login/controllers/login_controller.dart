@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tramo/app/routes/app_pages.dart';
 import 'package:tramo/app/widgets/error_notification.dart';
 import 'package:tramo/app/widgets/info_notification.dart';
@@ -8,26 +9,36 @@ class LoginController extends GetxController {
   //TODO: Implement LoginController
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-  }
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
+    await sessionCheck();
   }
 
   TextEditingController emailTC = TextEditingController();
   TextEditingController passTC = TextEditingController();
 
-  login(BuildContext context) {
+  bool? isLogin;
+
+  sessionCheck() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    isLogin = pref.getBool('session') ?? false;
+
+    debugPrint("Session Check $isLogin");
+
+    if (isLogin! == true) {
+      return Get.offAndToNamed(Routes.HOME);
+    }
+  }
+
+  login(BuildContext context) async {
     if (emailTC.text.isNotEmpty && passTC.text.isNotEmpty) {
       if (emailTC.text == "testadmin" && passTC.text == "admintest") {
+        SharedPreferences pref = await SharedPreferences.getInstance();
+
+        pref.setBool('session', true);
+
         Get.offAndToNamed(Routes.HOME);
         showInfoNotification(
             context: context, description: "Login successfully");

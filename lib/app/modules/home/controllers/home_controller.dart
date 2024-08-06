@@ -8,8 +8,9 @@ import 'package:get/get.dart';
 import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tramo/app/constants/themes/app_colors.dart';
-import 'package:tramo/app/constants/themes/font_style.dart';
+import 'package:tramo/app/routes/app_pages.dart';
 import 'package:tramo/app/utils/utils.dart';
 import 'package:tramo/app/widgets/error_notification.dart';
 import 'package:tramo/app/widgets/info_notification.dart';
@@ -20,11 +21,15 @@ import 'package:tramo/app/widgets/loading_dialog.dart';
 
 class HomeController extends GetxController {
   IdbFactory databaseFactory = getIdbFactory()!;
+
   Database? db;
 
   @override
   void onInit() async {
     super.onInit();
+
+    await sessionCheck();
+
     await initDatabase();
 
     final audioplayer = AudioPlayer();
@@ -86,9 +91,22 @@ class HomeController extends GetxController {
   int totalDataFetched = 0;
 
   Timer? timer;
+  bool? isLogin;
 
   switchNavbarType() {
     isNavbarShrink.value = !isNavbarShrink.value;
+  }
+
+  sessionCheck() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    isLogin = pref.getBool('session') ?? false;
+
+    debugPrint("Session Check $isLogin");
+
+    if (isLogin! == false) {
+      return Get.offAndToNamed(Routes.LOGIN);
+    }
   }
 
   Future<void> initDatabase() async {
@@ -147,8 +165,6 @@ class HomeController extends GetxController {
       action: 'readonly',
     );
 
-    debugPrint("Berikut datanya oyyyyyy : ${request.toString()}");
-
     return request ?? "localhost:8080";
   }
 
@@ -183,14 +199,16 @@ class HomeController extends GetxController {
     activePage.value = indexPage;
 
     saveActivePage();
-    activeObjectName.value = "sv_${monitoringList[indexPage].toString().camelCase}";
+    activeObjectName.value =
+        "sv_${monitoringList[indexPage].toString().camelCase}";
 
     debugPrint(
         "Saat ini masuk page dari menu ${monitoringList[indexPage]} -- ${activeObjectName.value}");
 
     sensorsValue = await getSensorsValue(activeObjectName.value);
 
-    debugPrint("Berikut data dari menu ${activeObjectName.value}\n $sensorsValue");
+    debugPrint(
+        "Berikut data dari menu ${activeObjectName.value}\n $sensorsValue");
 
     update();
   }
@@ -233,7 +251,8 @@ class HomeController extends GetxController {
 
   void saveMonitoringGroup() async {
     List monitoringData = await getMonitoringGroup();
-    bool isDuplicate = monitoringData.any((element) => element == monitoringGroupTC.text);
+    bool isDuplicate =
+        monitoringData.any((element) => element == monitoringGroupTC.text);
 
     if (monitoringGroupTC.text.isNotEmpty) {
       String sensorValueKey = "sv_${monitoringGroupTC.text.camelCase}";
@@ -261,7 +280,8 @@ class HomeController extends GetxController {
         monitoringList.add(monitoringGroupTC.text);
 
         if (monitoringList.length == 1) {
-          activeObjectName.value = "sv_${monitoringList[0].toString().camelCase}";
+          activeObjectName.value =
+              "sv_${monitoringList[0].toString().camelCase}";
         }
 
         update();
@@ -344,7 +364,8 @@ class HomeController extends GetxController {
     List newSensorValue = [];
 
     try {
-      if (renameGroupTC.text.isNotEmpty && renameGroupTC.text != selectedGroupName) {
+      if (renameGroupTC.text.isNotEmpty &&
+          renameGroupTC.text != selectedGroupName) {
         int groupIndex = groupData.indexOf(selectedGroupName);
 
         debugPrint(
@@ -366,7 +387,8 @@ class HomeController extends GetxController {
         String oldGroupName = selectedGroupName.toString().camelCase!;
         String newGroupName = renameGroupTC.text.toString().camelCase!;
 
-        debugPrint("3. Ini old&newnya cuy --->\nold: $oldGroupName new: $newGroupName");
+        debugPrint(
+            "3. Ini old&newnya cuy --->\nold: $oldGroupName new: $newGroupName");
 
         for (var key in sensorsData.keys) {
           if (key == oldGroupName) {
@@ -436,12 +458,9 @@ class HomeController extends GetxController {
 
     if (objectStore == "" && monitoringList.isNotEmpty) {
       objectStore = "sv_${monitoringList[0].toString().camelCase}";
-      debugPrint("Kayaknya data Sensor Valuenya $objectStore kosong 2 : \n -> $sensorsValue");
     }
 
     if (objectStore == "" && monitoringList.isEmpty) {
-      debugPrint("Kayaknya data Sensor Valuenya $objectStore kosong 2 : \n -> $sensorsValue");
-
       return [];
     }
 
@@ -454,12 +473,14 @@ class HomeController extends GetxController {
 
     if (obj != null) {
       sensorsValueList.addAll(List.from(obj as List));
-      debugPrint("Ini isi data Sensor Value $objectStore : \n -> $sensorsValueList");
+      debugPrint(
+          "Ini isi data Sensor Value $objectStore : \n -> $sensorsValueList");
 
       return sensorsValueList;
     }
 
-    debugPrint("Kayaknya data Sensor Valuenya kosong : \n -> $sensorsValueList");
+    debugPrint(
+        "Kayaknya data Sensor Valuenya kosong : \n -> $sensorsValueList");
 
     return sensorsValueList;
   }
@@ -521,11 +542,13 @@ class HomeController extends GetxController {
         debugPrint(
             "----------------> Ganti index ke $indexOfLastValue dari jumlah ${sensorsValueList[index]['value'].length} ");
 
-        debugPrint("yang datanya adalah: \n--->${sensorsValueList[index]['value'].last}");
+        debugPrint(
+            "yang datanya adalah: \n--->${sensorsValueList[index]['value'].last}");
 
         sensorsValueList[index]['value'].last = apiValue;
 
-        debugPrint("Setelah diganti menjadi: \n--->${sensorsValueList[index]['value'].last}");
+        debugPrint(
+            "Setelah diganti menjadi: \n--->${sensorsValueList[index]['value'].last}");
 
         await store.put(sensorsValueList, objectName);
         await txn.completed;
@@ -567,7 +590,8 @@ class HomeController extends GetxController {
 
     await store.put(sensorsValueList, key);
 
-    debugPrint("Sukses input data Sensor Valuenya ke objekstore $key : \n -> $sensorsValueList");
+    debugPrint(
+        "Sukses input data Sensor Valuenya ke objekstore $key : \n -> $sensorsValueList");
 
     await txn.completed;
   }
@@ -585,12 +609,13 @@ class HomeController extends GetxController {
       Map<String, dynamic> dataMap = (obj as Map).map(
         (key, value) => MapEntry(key.toString(), value),
       );
-      debugPrint("ini get sensorsData dari Objek yang udah dimap ges : \n -> $dataMap");
+      debugPrint(
+          "ini get sensorsData dari Objek yang udah dimap : \n -> $dataMap");
       sensors.addAll(dataMap);
     }
 
     if (sensorsData.isEmpty) {
-      debugPrint("Sensors is Empty saddddddddddddd!");
+      debugPrint("Sensors is Empty!");
     }
 
     if (key != null) {
@@ -640,7 +665,8 @@ class HomeController extends GetxController {
         }
 
         sensorsData.addAll({menuTitle: keyedSensorsData});
-        debugPrint("menambahkan data ke master sensors data juga, output : $sensorsData");
+        debugPrint(
+            "menambahkan data ke master sensors data juga, output : $sensorsData");
 
         Transaction txn = db!.transaction('sensorsData', 'readwrite');
         ObjectStore store = txn.objectStore('sensorsData');
@@ -658,7 +684,8 @@ class HomeController extends GetxController {
 
         update();
 
-        debugPrint("Sukses save sensorsdata ke localStorage, isinya: \n - $sensorsData");
+        debugPrint(
+            "Sukses save sensorsdata ke localStorage, isinya: \n - $sensorsData");
       } catch (e) {
         debugPrint(e.toString());
       }
@@ -696,11 +723,14 @@ class HomeController extends GetxController {
         final response = await dio.get(apiURL);
 
         if (response.statusCode == 200 && response.data != null) {
-          Map<String, dynamic> responseData = Map<String, dynamic>.from(response.data);
+          Map<String, dynamic> responseData =
+              Map<String, dynamic>.from(response.data);
           debugPrint('berikut datanya : \n-> ${responseData['sensordata']}');
 
-          var apiValue = responseData['sensordata']['value'].toString().split(" ")[0];
-          debugPrint("ini valuenyaa cuy : ${Utils.formatRawApiValue(apiValue)}");
+          var apiValue =
+              responseData['sensordata']['value'].toString().split(" ")[0];
+          debugPrint(
+              "ini valuenyaa cuy : ${Utils.formatRawApiValue(apiValue)}");
 
           await saveSensorValue(
             objectName,
@@ -709,7 +739,8 @@ class HomeController extends GetxController {
             responseData['sensordata']['name'],
           );
 
-          debugPrint("Ini currentSensorValue setelah di Add Value Baru-> \n${sensorsValue[index]}");
+          debugPrint(
+              "Ini currentSensorValue setelah di Add Value Baru-> \n${sensorsValue[index]}");
 
           if (isTimerRunning == false) {
             timer = Timer.periodic(const Duration(seconds: 20), (timer) async {
@@ -755,7 +786,8 @@ class HomeController extends GetxController {
     }
 
     if (sensorsIdTC.text.isNotEmpty && prtgIpTC.text.isNotEmpty) {
-      Map<String, dynamic> keyedSensorsData = await getSensorsData(key: menuTitle);
+      Map<String, dynamic> keyedSensorsData =
+          await getSensorsData(key: menuTitle);
 
       keyedSensorsData['Id'][index] = (int.parse(sensorsIdTC.text));
       keyedSensorsData['prtgIp'][index] = (int.parse(prtgIpTC.text));
@@ -841,7 +873,8 @@ class HomeController extends GetxController {
   disableAlert(int index) async {
     String menuTitle = monitoringList[activePage.value].toString().camelCase!;
     bool isAlertEnable = sensorsData[menuTitle]['alert'][index];
-    debugPrint("-----------> Alert Sensor ${sensorsValue[index]['name']} Before $isAlertEnable");
+    debugPrint(
+        "-----------> Alert Sensor ${sensorsValue[index]['name']} Before $isAlertEnable");
 
     isAlertEnable = !isAlertEnable;
     isRefresh.value = true;
@@ -856,7 +889,8 @@ class HomeController extends GetxController {
       data: sensorsData,
     );
 
-    debugPrint("-----------> Alert Sensor ${sensorsValue[index]['name']} After $isAlertEnable");
+    debugPrint(
+        "-----------> Alert Sensor ${sensorsValue[index]['name']} After $isAlertEnable");
 
     Get.back();
 
@@ -888,7 +922,9 @@ class HomeController extends GetxController {
       // double maxlastestData = lastestData.fold(0, (prev, element) => prev + element);
 
       double maxlastestData = lastestData.fold(
-          0, (previousValue, element) => previousValue > element ? previousValue : element);
+          0,
+          (previousValue, element) =>
+              previousValue > element ? previousValue : element);
 
       double avgData = maxlastestData;
 
@@ -910,17 +946,23 @@ class HomeController extends GetxController {
         if (currentData <= thresoldMajor || currentData < 10) {
           debugPrint("----------------------> Playing Major Alarm");
           showErrorNotification(
-              context: context, description: "$sensorName is low Traffic", type: "major");
+              context: context,
+              description: "$sensorName is low Traffic",
+              type: "major");
 
-          audioplayer.play(DeviceFileSource('/assets/sounds/major_alarm.wav'), volume: .8);
+          audioplayer.play(DeviceFileSource('/assets/sounds/major_alarm.wav'),
+              volume: .8);
         }
 
         if (currentData <= thresoldMinor && currentData >= thresoldMajor) {
           debugPrint("----------------------> Playing Minor Alarm");
           showErrorNotification(
-              context: context, description: "$sensorName is low Traffic", type: "minor");
+              context: context,
+              description: "$sensorName is low Traffic",
+              type: "minor");
 
-          audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
+          audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'),
+              volume: .5);
         }
       }
     }
@@ -933,7 +975,8 @@ class HomeController extends GetxController {
   playSound() {
     debugPrint("----------------------> Playing Minor Alarm");
 
-    audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
+    audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'),
+        volume: .5);
   }
 
   exportProfile() async {
@@ -993,7 +1036,9 @@ class HomeController extends GetxController {
             List sensorsValueList = [];
 
             if (newSensorsData[objectStore] != null) {
-              for (var i = 0; i < newSensorsData[objectStore]["Id"].length; i++) {
+              for (var i = 0;
+                  i < newSensorsData[objectStore]["Id"].length;
+                  i++) {
                 sensorsValueList.add({
                   "sensorId": newSensorsData[objectStore]["Id"][i],
                   "value": [],
@@ -1038,7 +1083,8 @@ class HomeController extends GetxController {
           update();
         });
 
-        showInfoNotification(context: context, description: "Profile Imported Successfully!");
+        showInfoNotification(
+            context: context, description: "Profile Imported Successfully!");
       } else {
         debugPrint("File yg di Import Tidak ada CUY!");
       }
@@ -1073,6 +1119,7 @@ class HomeController extends GetxController {
     Get.back();
 
     showInfoNotification(
-        context: context, description: "Success resetting sensors data in ${selectedGroupName!}");
+        context: context,
+        description: "Success resetting sensors data in ${selectedGroupName!}");
   }
 }

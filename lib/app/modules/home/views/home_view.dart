@@ -6,6 +6,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tramo/app/constants/themes/app_colors.dart';
 import 'package:tramo/app/constants/themes/font_style.dart';
 import 'package:tramo/app/widgets/add_monitoring_button.dart';
+import 'package:tramo/app/widgets/logout_button.dart';
 import 'package:tramo/app/widgets/menu_list.dart';
 import 'package:tramo/app/widgets/monitoring_list.dart';
 import 'package:tramo/app/widgets/sensors_page.dart';
@@ -100,9 +101,10 @@ class HomeView extends GetView<HomeController> {
                                   callback: () {
                                     controller.switchPage(index);
                                   },
-                                  containerColor: controller.activePage.value == index
-                                      ? BaseColors.secondaryBackground
-                                      : Colors.transparent,
+                                  containerColor:
+                                      controller.activePage.value == index
+                                          ? BaseColors.secondaryBackground
+                                          : Colors.transparent,
                                   title: controller.monitoringList[index],
                                   isShrink: controller.isNavbarShrink.value,
                                   icon: FontAwesomeIcons.circle,
@@ -120,6 +122,8 @@ class HomeView extends GetView<HomeController> {
                       ),
                       const Spacer(),
                       SettingButton(title: "Settings"),
+                      const SizedBox(height: 6),
+                      LogoutButton(title: "Logout"),
                     ],
                   ),
                 );
@@ -140,7 +144,8 @@ class HomeView extends GetView<HomeController> {
                           ? Center(
                               child: Text(
                                 "There is no data to show",
-                                style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
+                                style: AppFonts.regularText
+                                    .copyWith(color: BaseColors.primaryText),
                               ),
                             )
                           : Center(
@@ -183,8 +188,8 @@ Widget tramoLogo(
                 children: [
                   TextSpan(
                     text: ".",
-                    style:
-                        AppFonts.boldText.copyWith(fontSize: 40.0, color: const Color(0xFF00E8E8)),
+                    style: AppFonts.boldText.copyWith(
+                        fontSize: 40.0, color: const Color(0xFF00E8E8)),
                   ),
                 ],
               ),
@@ -210,8 +215,8 @@ Widget tramoLogo(
                   children: [
                     TextSpan(
                       text: ".",
-                      style: AppFonts.boldText
-                          .copyWith(fontSize: 40.0, color: const Color(0xFF00E8E8)),
+                      style: AppFonts.boldText.copyWith(
+                          fontSize: 40.0, color: const Color(0xFF00E8E8)),
                     ),
                   ],
                 ),
