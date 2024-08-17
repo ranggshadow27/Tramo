@@ -2,7 +2,7 @@ import 'package:idb_shim/idb.dart';
 
 class Utils {
   static int formatRawApiValue(String rawValue) {
-    return int.parse(rawValue.replaceAll(".", ""));
+    return int.parse(rawValue.replaceAll(RegExp(r'[.,]'), ""));
   }
 
   static Future<dynamic> transaction({

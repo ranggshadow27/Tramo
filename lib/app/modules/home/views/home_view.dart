@@ -71,12 +71,12 @@ class HomeView extends GetView<HomeController> {
                         isShrink: controller.isNavbarShrink.value,
                       ),
                       const SizedBox(height: 24),
-                      MenuList(
-                        title: "Dashboard",
-                        isShrink: controller.isNavbarShrink.value,
-                        icon: FontAwesomeIcons.qrcode,
-                        iconColor: AccentColors.tealColor,
-                      ),
+                      // MenuList(
+                      //   title: "Dashboard",
+                      //   isShrink: controller.isNavbarShrink.value,
+                      //   icon: FontAwesomeIcons.qrcode,
+                      //   iconColor: AccentColors.tealColor,
+                      // ),
                       MenuList(
                         title: "Monitoring",
                         isShrink: controller.isNavbarShrink.value,

@@ -67,6 +67,37 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
               ),
             ),
             const SizedBox(height: 10),
+            Obx(
+              () => myTextField(
+                hintText: "Username",
+                c: controller.usernameTC,
+                errorText:
+                    controller.errUsernameObs.value == "" ? null : controller.errUsernameObs.value,
+                labelText: "Insert the PRTG Username",
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    controller.errUsernameObs.value = "";
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            Obx(
+              () => myTextField(
+                hintText: "Password",
+                c: controller.passwordTC,
+                isPassword: true,
+                errorText:
+                    controller.errPasswordObs.value == "" ? null : controller.errPasswordObs.value,
+                labelText: "Insert the PRTG Password",
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    controller.errPasswordObs.value = "";
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
             myCustomButton(
               color: BaseColors.secondaryBackground,
               title: "Update",

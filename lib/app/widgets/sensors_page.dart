@@ -151,6 +151,9 @@ class SensorsPage extends StatelessWidget {
                               context: context,
                               index: index,
                               key: sensorId[index].toString(),
+                              prtgIP: prtgIP[index]['ip'].toString(),
+                              prtgUser: prtgIP[index]['user'].toString(),
+                              prtgPw: prtgIP[index]['pass'].toString(),
                               objectName: controller.activeObjectName.isEmpty
                                   ? "sv_$firstMonitoringMenu"
                                   : controller.activeObjectName.value,
@@ -189,7 +192,7 @@ class SensorsPage extends StatelessWidget {
                                     children: [
                                       const Spacer(),
                                       Text(
-                                        "Sensor ID : ${sensorId[index]}",
+                                        "Sensor ID : ${prtgIP[index]['user']}",
                                         style: AppFonts.regularText.copyWith(
                                           fontSize: 12.0,
                                           color: BaseColors.primaryText,
@@ -225,7 +228,7 @@ class SensorsPage extends StatelessWidget {
                                     mainData: data['value'],
                                     timeData: data['time'],
                                     sensorID: sensorId[index].toString(),
-                                    prtgIP: prtgIP[index].toString(),
+                                    prtgIP: prtgIP[index]['ip'].toString(),
                                   ),
                                   IconButton(
                                     onPressed: () => showDialog(
@@ -240,7 +243,15 @@ class SensorsPage extends StatelessWidget {
                                             .toString();
 
                                         controller.prtgIpTC.text = controller.sensorsData[pageName]
-                                                ['prtgIp'][index]
+                                                ['prtgIp'][index]['ip']
+                                            .toString();
+
+                                        controller.passwordTC.text = controller
+                                            .sensorsData[pageName]['prtgIp'][index]['pass']
+                                            .toString();
+
+                                        controller.usernameTC.text = controller
+                                            .sensorsData[pageName]['prtgIp'][index]['user']
                                             .toString();
 
                                         return updateDialog(context, index, sensorAlert[index]);

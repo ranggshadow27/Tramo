@@ -127,10 +127,40 @@ Widget myCustomDialog(BuildContext context, int index) {
                 c: controller.prtgIpTC,
                 errorText: controller.errNameObs.value == "" ? null : controller.errNameObs.value,
                 labelText: "Insert the PRTG IP",
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
                   if (value.isNotEmpty) {
                     controller.errNameObs.value = "";
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            Obx(
+              () => myTextField(
+                hintText: "Username",
+                c: controller.usernameTC,
+                errorText:
+                    controller.errUsernameObs.value == "" ? null : controller.errUsernameObs.value,
+                labelText: "Insert the PRTG Username",
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    controller.errUsernameObs.value = "";
+                  }
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            Obx(
+              () => myTextField(
+                hintText: "Password",
+                c: controller.passwordTC,
+                isPassword: true,
+                errorText:
+                    controller.errPasswordObs.value == "" ? null : controller.errPasswordObs.value,
+                labelText: "Insert the PRTG Password",
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    controller.errPasswordObs.value = "";
                   }
                 },
               ),
