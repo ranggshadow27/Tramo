@@ -32,8 +32,9 @@ class ChartWidget extends StatelessWidget {
     int latestData = mainData[mainData.length - 1];
 
     var maxVal = mainData.reduce(
-      (previousValue, element) =>
-          previousValue > element ? previousValue.toDouble() : element.toDouble(),
+      (previousValue, element) => previousValue > element
+          ? previousValue.toDouble()
+          : element.toDouble(),
     );
 
     late double latestAverage;
@@ -48,10 +49,11 @@ class ChartWidget extends StatelessWidget {
     } else {
       // totalAvg = mainData.reversed.toList().sublist(0, mainData.length).length;
 
-      latestAverage = mainData.reversed.toList().sublist(0, mainData.length).fold(
-            0,
-            (prevVal, element) => prevVal > element ? prevVal : element,
-          );
+      latestAverage =
+          mainData.reversed.toList().sublist(0, mainData.length).fold(
+                0,
+                (prevVal, element) => prevVal > element ? prevVal : element,
+              );
     }
 
     // double currentThresold = (latestAverage / totalAvg) * .85;
@@ -138,7 +140,7 @@ class ChartWidget extends StatelessWidget {
                       }),
                 ),
               ),
-              rightTitles: AxisTitles(),
+              rightTitles: const AxisTitles(),
               leftTitles: AxisTitles(
                 axisNameSize: 15,
                 axisNameWidget: Text(
@@ -201,17 +203,6 @@ class ChartWidget extends StatelessWidget {
                     );
 
                     for (var i = 0; i < timeData.length; i++) {
-                      // if (value.toInt() == 0 && timeData.length == 1) {
-                      //   return RotatedBox(
-                      //     quarterTurns: 3,
-                      //     child: Text(timeData[i], style: style),
-                      //   );
-                      // }
-
-                      // if (value.toInt() == 0 && timeData.length < 10) {
-                      //   return const SizedBox();
-                      // }
-
                       if (value.toInt() == i &&
                           int.parse(timeData[i].split(":")[1]) % 2 != 0 &&
                           timeData.length < 20) {
@@ -278,7 +269,8 @@ class ChartWidget extends StatelessWidget {
                 maxContentWidth: 200,
 
                 // tooltipBgColor: BaseColors.secondaryBackground.withOpacity(.8),
-                getTooltipColor: (touchedSpot) => BaseColors.secondaryBackground.withOpacity(.8),
+                getTooltipColor: (touchedSpot) =>
+                    BaseColors.secondaryBackground.withOpacity(.8),
 
                 showOnTopOfTheChartBoxArea: true,
 
@@ -300,10 +292,11 @@ class ChartWidget extends StatelessWidget {
             ),
             lineBarsData: [
               LineChartBarData(
-                dotData: FlDotData(show: false),
+                dotData: const FlDotData(show: false),
                 spots: List.generate(
                   mainData.length,
-                  (index) => FlSpot(index.toDouble(), mainData[index].toDouble()),
+                  (index) =>
+                      FlSpot(index.toDouble(), mainData[index].toDouble()),
                 ),
                 color: latestData >= minorThresold
                     ? AccentColors.tealColor
@@ -323,7 +316,8 @@ class ChartWidget extends StatelessWidget {
                             AccentColors.tealColor.withOpacity(0),
                             AccentColors.tealColor.withOpacity(0),
                           ]
-                        : latestData < minorThresold && latestData > majorThresold
+                        : latestData < minorThresold &&
+                                latestData > majorThresold
                             ? [
                                 AccentColors.yellowColor.withOpacity(.2),
                                 AccentColors.yellowColor.withOpacity(.05),

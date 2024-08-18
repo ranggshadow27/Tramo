@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Set Thresholds Backhaul</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+           /* margin-left: 980px ;*/
+            font-size: 16px;
+			text-align: center;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"],
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover,
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button {
+            margin-top: 10px;
+            background-color: #333;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+    </style>
+    <script>
+        function readFile() {
+            var fileUrl = 'http://202.55.175.233/backhaul/thresholds.txt';
+
+            fetch(fileUrl)
+                .then(response => response.text())
+                .then(content => {
+                    alert(content);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</head>
+<body>
+    <a style="text-decoration: none;" href="javascript:history.back()">
+        <button style="width: 8%; height:2%; background-color: white; color: black; border: 1px solid black;">Go Back</button>
+    </a>
+    <h1>Set Thresholds Backhaul</h1>
+    <h2>NOTE: This value is a fucking default value </h2>
+    
+    <form action="index.php" method="POST">
+        <label for="thresholdSES9">Paket 4:</label>
+        <input type="text" name="thresholdSES9" value="200000" required><br><br>
+        
+        <label for="thresholdkacific">Paket 5:</label>
+        <input type="text" name="thresholdkacific" value="100000" required><br><br>
+        
+        <label for="threshold_jcsat">Threshold for JCSAT:</label>
+        <input type="text" name="threshold_jcsat" value="900000" required><br><br>
+        
+        <label for="thresholdSES12">Threshold for SES-12:</label>
+        <input type="text" name="thresholdSES12" value="400000" required><br><br>
+        
+        <label for="thresholdIPSTAR">Threshold for IPSTAR:</label>
+        <input type="text" name="thresholdIPSTAR" value="150000" required><br><br>
+        
+        <label for="thresholdkacificpure">Kacific:</label>
+        <input type="text" name="thresholdkacificpure" value="150000" required><br><br>
+
+        
+        <input type="submit" value="Save Thresholds">
+		
+    </form>
+	<div style="display: flex; justify-content: center;">
+        <button style="width: auto; background-color: white; border: 1px solid black; color: black;" onclick="readFile()">Show Current Thresholds</button>
+    </div>
+      
+    
+</body>
+</html>

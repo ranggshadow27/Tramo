@@ -1,0 +1,6 @@
+thresholdSES9 = 333000
+thresholdkacific = 32000
+threshold_jcsat = 933000
+thresholdSES12 = 478000
+thresholdIPSTAR = 192000
+thresholdkacificpure = 218000

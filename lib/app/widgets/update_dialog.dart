@@ -40,8 +40,9 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
               () => myTextField(
                 hintText: "ex. 25609",
                 c: controller.sensorsIdTC,
-                errorText:
-                    controller.groupNameObs.value == "" ? null : controller.groupNameObs.value,
+                errorText: controller.groupNameObs.value == ""
+                    ? null
+                    : controller.groupNameObs.value,
                 labelText: "Insert the Sensor ID from PRTG",
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
@@ -56,9 +57,10 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
               () => myTextField(
                 hintText: "ex. 202.55.175.235:8443",
                 c: controller.prtgIpTC,
-                errorText: controller.errNameObs.value == "" ? null : controller.errNameObs.value,
+                errorText: controller.errNameObs.value == ""
+                    ? null
+                    : controller.errNameObs.value,
                 labelText: "Insert the PRTG IP",
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
                   if (value.isNotEmpty) {
                     controller.errNameObs.value = "";
@@ -71,8 +73,9 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
               () => myTextField(
                 hintText: "Username",
                 c: controller.usernameTC,
-                errorText:
-                    controller.errUsernameObs.value == "" ? null : controller.errUsernameObs.value,
+                errorText: controller.errUsernameObs.value == ""
+                    ? null
+                    : controller.errUsernameObs.value,
                 labelText: "Insert the PRTG Username",
                 onChanged: (value) {
                   if (value.isNotEmpty) {
@@ -87,8 +90,9 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
                 hintText: "Password",
                 c: controller.passwordTC,
                 isPassword: true,
-                errorText:
-                    controller.errPasswordObs.value == "" ? null : controller.errPasswordObs.value,
+                errorText: controller.errPasswordObs.value == ""
+                    ? null
+                    : controller.errPasswordObs.value,
                 labelText: "Insert the PRTG Password",
                 onChanged: (value) {
                   if (value.isNotEmpty) {
@@ -113,7 +117,8 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
                   controller.disableAlert(index);
                   showInfoNotification(
                     context: context,
-                    description: "${controller.sensorsValue[index]['name']} Muted",
+                    description:
+                        "${controller.sensorsValue[index]['name']} Muted",
                   );
                 }),
             const SizedBox(height: 10),
