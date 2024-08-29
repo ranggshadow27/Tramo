@@ -34,7 +34,7 @@ class LoginController extends GetxController {
 
   login(BuildContext context) async {
     if (emailTC.text.isNotEmpty && passTC.text.isNotEmpty) {
-      if (emailTC.text == "testadmin" && passTC.text == "admintest") {
+      if (emailTC.text == "netlertadmin" && passTC.text == "admin@netlert") {
         SharedPreferences pref = await SharedPreferences.getInstance();
 
         pref.setBool('session', true);

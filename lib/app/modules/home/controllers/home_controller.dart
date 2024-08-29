@@ -758,6 +758,8 @@ class HomeController extends GetxController {
 
       if (apiEndpoint == "localhost:8080") {
         apiURL = "http://localhost:8080/backhaul/";
+      } else {
+        apiURL = apiEndpoint;
       }
 
       debugPrint("BERIKUT API URLNYA 1 -> $apiURL ~~~~~~~~~~~");

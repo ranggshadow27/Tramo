@@ -8,7 +8,7 @@ import '../constants/themes/font_style.dart';
 
 Widget sensorDetailDialog(String sensorName, sensorID, prtgIP) {
   return Dialog(
-    backgroundColor: BaseColors.secondaryBackground,
+    backgroundColor: BaseColors.primaryBackground,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(20),
     ),

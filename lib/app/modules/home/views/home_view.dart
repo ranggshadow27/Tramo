@@ -23,7 +23,7 @@ class HomeView extends GetView<HomeController> {
     var maxHeight = MediaQuery.sizeOf(context).height;
 
     return Scaffold(
-      backgroundColor: BaseColors.primaryBackground,
+      backgroundColor: BaseColors.navbarBackground,
       body: LayoutBuilder(
         builder: (context, constraints) {
           RxString maxH = constraints.maxHeight.toString().obs;
@@ -57,7 +57,7 @@ class HomeView extends GetView<HomeController> {
 
                 return Container(
                   height: maxHeight,
-                  color: BaseColors.navbarBackground,
+                  color: BaseColors.primaryBackground,
                   padding: EdgeInsets.symmetric(
                     vertical: 12,
                     horizontal: controller.isNavbarShrink.value ? 32 : 12,
@@ -71,17 +71,11 @@ class HomeView extends GetView<HomeController> {
                         isShrink: controller.isNavbarShrink.value,
                       ),
                       const SizedBox(height: 24),
-                      // MenuList(
-                      //   title: "Dashboard",
-                      //   isShrink: controller.isNavbarShrink.value,
-                      //   icon: FontAwesomeIcons.qrcode,
-                      //   iconColor: AccentColors.tealColor,
-                      // ),
                       MenuList(
                         title: "Monitoring",
                         isShrink: controller.isNavbarShrink.value,
-                        icon: FontAwesomeIcons.chartSimple,
-                        iconColor: AccentColors.redColor,
+                        icon: FontAwesomeIcons.layerGroup,
+                        iconColor: AccentColors.tealColor,
                       ),
                       SizedBox(
                         height: maxGroups < 1
@@ -104,6 +98,7 @@ class HomeView extends GetView<HomeController> {
                                   containerColor:
                                       controller.activePage.value == index
                                           ? BaseColors.secondaryBackground
+                                              .withOpacity(.2)
                                           : Colors.transparent,
                                   title: controller.monitoringList[index],
                                   isShrink: controller.isNavbarShrink.value,
@@ -117,13 +112,13 @@ class HomeView extends GetView<HomeController> {
                       ),
                       const SizedBox(height: 12),
                       AddMonitoringButton(
-                        title: 'Add New Group',
+                        title: 'New Groups',
                         controller: controller,
                       ),
                       const Spacer(),
                       SettingButton(title: "Settings"),
                       const SizedBox(height: 6),
-                      LogoutButton(title: "Logout"),
+                      LogoutButton(title: "Sign Out"),
                     ],
                   ),
                 );
@@ -143,7 +138,7 @@ class HomeView extends GetView<HomeController> {
                       : c.monitoringList.isEmpty
                           ? Center(
                               child: Text(
-                                "There is no data to show",
+                                "Sensor List is Empty",
                                 style: AppFonts.regularText
                                     .copyWith(color: BaseColors.primaryText),
                               ),
@@ -180,12 +175,19 @@ Widget tramoLogo(
             alignment: Alignment.centerLeft,
             child: Text.rich(
               TextSpan(
-                text: "Tramo",
+                text: "NETLERT",
                 style: AppFonts.boldText.copyWith(
-                  fontSize: 24.0,
+                  fontSize: 20.0,
                   color: BaseColors.primaryText,
                 ),
                 children: [
+                  TextSpan(
+                    text: "Monitor",
+                    style: AppFonts.boldText.copyWith(
+                      fontSize: 20.0,
+                      color: BaseColors.primaryText,
+                    ),
+                  ),
                   TextSpan(
                     text: ".",
                     style: AppFonts.boldText.copyWith(
@@ -207,16 +209,16 @@ Widget tramoLogo(
             child: Center(
               child: Text.rich(
                 TextSpan(
-                  text: "T",
+                  text: "N",
                   style: AppFonts.boldText.copyWith(
                     fontSize: 24.0,
                     color: BaseColors.primaryText,
                   ),
                   children: [
                     TextSpan(
-                      text: ".",
+                      text: "M",
                       style: AppFonts.boldText.copyWith(
-                          fontSize: 40.0, color: const Color(0xFF00E8E8)),
+                          fontSize: 12.0, color: const Color(0xFF00E8E8)),
                     ),
                   ],
                 ),

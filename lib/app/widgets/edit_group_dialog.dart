@@ -39,7 +39,9 @@ Widget editGroupDialog(BuildContext context) {
               () => myTextField(
                 hintText: "Insert New Group Name",
                 labelText: "Rename Group",
-                errorText: controller.errNameObs.value != "" ? controller.errNameObs.value : null,
+                errorText: controller.errNameObs.value != ""
+                    ? controller.errNameObs.value
+                    : null,
                 c: controller.renameGroupTC,
                 onChanged: (value) {
                   if (value.isNotEmpty) {
@@ -56,7 +58,7 @@ Widget editGroupDialog(BuildContext context) {
                 controller.updateMonitoringGroup();
               },
               title: "Rename Group",
-              color: BaseColors.secondaryBackground,
+              color: AccentColors.tealColor,
             ),
             const SizedBox(height: 4),
             Obx(() => controller.updateGroupSuccess.isFalse
@@ -105,7 +107,7 @@ Widget editGroupDialog(BuildContext context) {
                         ),
                       );
                     },
-                    color: BaseColors.secondaryBackground,
+                    color: AccentColors.tealColor,
                     title: "Reset Data",
                   ),
                 ),
@@ -114,7 +116,7 @@ Widget editGroupDialog(BuildContext context) {
                   flex: 2,
                   child: myCustomButton(
                     onTap: () {},
-                    color: BaseColors.secondaryBackground,
+                    color: AccentColors.tealColor,
                     title: "Clear",
                   ),
                 ),

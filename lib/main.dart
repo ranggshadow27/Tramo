@@ -9,11 +9,9 @@ void main() async {
   SharedPreferences pref = await SharedPreferences.getInstance();
   bool isLogin = pref.getBool('session') ?? false;
 
-  debugPrint("Kita cek loginnya dahulu ges : $isLogin");
-
   runApp(
     GetMaterialApp(
-      title: "Tramo",
+      title: "NETLERT Monitor",
       debugShowCheckedModeBanner: false,
       initialRoute: !isLogin ? Routes.LOGIN : Routes.HOME,
       getPages: AppPages.routes,

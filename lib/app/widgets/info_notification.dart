@@ -30,10 +30,11 @@ showInfoNotification({
       title,
       style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
     ),
-    background: BaseColors.secondaryBackground,
+    background: BaseColors.primaryBackground,
     description: Text(
       description,
-      style: AppFonts.regularText.copyWith(color: BaseColors.primaryText.withOpacity(.8)),
+      style: AppFonts.regularText
+          .copyWith(color: BaseColors.primaryText.withOpacity(.8)),
     ),
     onDismiss: () {},
   ).show(context);

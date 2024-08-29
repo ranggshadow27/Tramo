@@ -23,7 +23,7 @@ class SettingButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Material(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(15),
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
@@ -41,13 +41,13 @@ class SettingButton extends StatelessWidget {
               },
             );
           },
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(15),
           child: Container(
             width: isShrink ? 230 : 40,
-            height: isShrink ? 54 : 40,
+            height: isShrink ? 44 : 40,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(15),
               border: Border.all(
                 color: BaseColors.secondaryBackground,
                 width: 1,
@@ -59,7 +59,7 @@ class SettingButton extends StatelessWidget {
                     children: [
                       const SizedBox(width: 45),
                       const Icon(
-                        FontAwesomeIcons.gear,
+                        FontAwesomeIcons.userGear,
                         color: BaseColors.secondaryText,
                         size: 14,
                       ),
@@ -68,7 +68,8 @@ class SettingButton extends StatelessWidget {
                         width: 150,
                         child: Text(
                           title,
-                          style: AppFonts.semiBoldText.copyWith(color: BaseColors.primaryText),
+                          style: AppFonts.semiBoldText
+                              .copyWith(color: BaseColors.primaryText),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),

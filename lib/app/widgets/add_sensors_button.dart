@@ -28,7 +28,7 @@ class AddSensorButton extends StatelessWidget {
     final bool isShrink = controller.isWideWindow.value;
 
     return Material(
-      color: BaseColors.secondaryBackground,
+      color: BaseColors.secondaryBackground.withOpacity(.2),
       borderRadius: BorderRadius.circular(8),
       child: Center(
         child: InkWell(
@@ -109,8 +109,9 @@ Widget myCustomDialog(BuildContext context, int index) {
               () => myTextField(
                 hintText: "ex. 25609",
                 c: controller.sensorsIdTC,
-                errorText:
-                    controller.groupNameObs.value == "" ? null : controller.groupNameObs.value,
+                errorText: controller.groupNameObs.value == ""
+                    ? null
+                    : controller.groupNameObs.value,
                 labelText: "Insert the Sensor ID from PRTG",
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
@@ -125,7 +126,9 @@ Widget myCustomDialog(BuildContext context, int index) {
               () => myTextField(
                 hintText: "ex. 202.55.175.235:8443",
                 c: controller.prtgIpTC,
-                errorText: controller.errNameObs.value == "" ? null : controller.errNameObs.value,
+                errorText: controller.errNameObs.value == ""
+                    ? null
+                    : controller.errNameObs.value,
                 labelText: "Insert the PRTG IP",
                 onChanged: (value) {
                   if (value.isNotEmpty) {
@@ -139,8 +142,9 @@ Widget myCustomDialog(BuildContext context, int index) {
               () => myTextField(
                 hintText: "Username",
                 c: controller.usernameTC,
-                errorText:
-                    controller.errUsernameObs.value == "" ? null : controller.errUsernameObs.value,
+                errorText: controller.errUsernameObs.value == ""
+                    ? null
+                    : controller.errUsernameObs.value,
                 labelText: "Insert the PRTG Username",
                 onChanged: (value) {
                   if (value.isNotEmpty) {
@@ -155,8 +159,9 @@ Widget myCustomDialog(BuildContext context, int index) {
                 hintText: "Password",
                 c: controller.passwordTC,
                 isPassword: true,
-                errorText:
-                    controller.errPasswordObs.value == "" ? null : controller.errPasswordObs.value,
+                errorText: controller.errPasswordObs.value == ""
+                    ? null
+                    : controller.errPasswordObs.value,
                 labelText: "Insert the PRTG Password",
                 onChanged: (value) {
                   if (value.isNotEmpty) {

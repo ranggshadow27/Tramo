@@ -28,8 +28,8 @@ class AddMonitoringButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Material(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(15),
+        color: BaseColors.secondaryBackground.withOpacity(.5),
         child: InkWell(
           onTap: () {
             showDialog(
@@ -40,17 +40,13 @@ class AddMonitoringButton extends StatelessWidget {
               },
             );
           },
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(15),
           child: Container(
             width: isShrink ? 230 : 40,
-            height: isShrink ? 54 : 40,
+            height: isShrink ? 44 : 40,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: BaseColors.secondaryBackground,
-                width: 1,
-              ),
+              borderRadius: BorderRadius.circular(15),
             ),
             child: isShrink
                 ? Row(
@@ -59,7 +55,7 @@ class AddMonitoringButton extends StatelessWidget {
                       const SizedBox(width: 45),
                       const Icon(
                         FontAwesomeIcons.plus,
-                        color: AccentColors.blueColor,
+                        color: AccentColors.greenColor,
                         size: 16,
                       ),
                       const SizedBox(width: 12),
@@ -67,7 +63,8 @@ class AddMonitoringButton extends StatelessWidget {
                         width: 150,
                         child: Text(
                           title,
-                          style: AppFonts.semiBoldText.copyWith(color: BaseColors.primaryText),
+                          style: AppFonts.semiBoldText
+                              .copyWith(color: BaseColors.primaryText),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -76,7 +73,7 @@ class AddMonitoringButton extends StatelessWidget {
                 : const Center(
                     child: Icon(
                       FontAwesomeIcons.plus,
-                      color: AccentColors.blueColor,
+                      color: AccentColors.greenColor,
                       size: 16,
                     ),
                   ),
@@ -108,8 +105,9 @@ Widget myCustomDialog(BuildContext context) {
               () => myTextField(
                 hintText: "VSAT Traffic Monitoring Group",
                 c: controller.monitoringGroupTC,
-                errorText:
-                    controller.groupNameObs.value == "" ? null : controller.groupNameObs.value,
+                errorText: controller.groupNameObs.value == ""
+                    ? null
+                    : controller.groupNameObs.value,
                 labelText: "Insert Group Name",
                 onChanged: (value) {
                   if (value.isNotEmpty) {

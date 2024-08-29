@@ -16,29 +16,29 @@ class LoginView extends GetView<LoginController> {
     var mediaQuery = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: BaseColors.primaryBackground,
+      backgroundColor: BaseColors.navbarBackground,
       body: Center(
         child: IntrinsicHeight(
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 35),
-            width: mediaQuery.width * .25,
+            width: mediaQuery.width * .2,
             decoration: BoxDecoration(
-              color: BaseColors.secondaryBackground,
+              color: BaseColors.primaryBackground,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Welcome",
-                  style: AppFonts.regularText.copyWith(
+                  "NETLERTMonitor",
+                  style: AppFonts.boldText.copyWith(
                     color: BaseColors.primaryText,
                     fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Please login to continue using app",
+                  "Welcome! Please sign in to continue",
                   style: AppFonts.regularText.copyWith(
                     color: BaseColors.secondaryText,
                     fontSize: 14,
@@ -46,7 +46,7 @@ class LoginView extends GetView<LoginController> {
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
-                  width: mediaQuery.width * .2,
+                  width: mediaQuery.width * .15,
                   child: myTextField(
                     hintText: 'Your username here',
                     labelText: 'Username',
@@ -56,7 +56,7 @@ class LoginView extends GetView<LoginController> {
                 ),
                 const SizedBox(height: 14),
                 SizedBox(
-                  width: mediaQuery.width * .2,
+                  width: mediaQuery.width * .15,
                   child: myTextField(
                     hintText: '••••••••••••',
                     labelText: 'Password',
@@ -67,11 +67,11 @@ class LoginView extends GetView<LoginController> {
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
-                  width: mediaQuery.width * .2,
+                  width: mediaQuery.width * .15,
                   height: 45,
                   child: myCustomButton(
                     onTap: () => controller.login(context),
-                    title: 'Login',
+                    title: 'Sign In',
                   ),
                 )
               ],

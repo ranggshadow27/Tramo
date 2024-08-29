@@ -22,7 +22,7 @@ Widget myCustomButton({
     child: Text(
       title ?? "Submit",
       style: AppFonts.semiBoldText.copyWith(
-        color: titleColor ?? BaseColors.primaryText,
+        color: titleColor ?? BaseColors.primaryBackground,
         fontSize: 13.0,
       ),
     ),

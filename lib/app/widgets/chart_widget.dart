@@ -82,7 +82,7 @@ class ChartWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: BaseColors.navbarBackground.withOpacity(.5),
+          color: BaseColors.primaryBackground.withOpacity(.9),
         ),
         child: LineChart(
           LineChartData(

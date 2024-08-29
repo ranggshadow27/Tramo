@@ -44,17 +44,21 @@ class MonitoringList extends StatelessWidget {
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const SizedBox(width: 45),
+                      const SizedBox(width: 12),
                       SvgPicture.asset(
-                        'assets/icons/square.svg',
-                        colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                        width: 20,
+                        height: 20,
+                        'assets/icons/square_big.svg',
+                        colorFilter:
+                            ColorFilter.mode(iconColor, BlendMode.srcIn),
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
                         width: 150,
                         child: Text(
                           title,
-                          style: AppFonts.semiBoldText.copyWith(color: BaseColors.primaryText),
+                          style: AppFonts.semiBoldText
+                              .copyWith(color: BaseColors.primaryText),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -63,6 +67,8 @@ class MonitoringList extends StatelessWidget {
                 : Tooltip(
                     message: title,
                     child: SvgPicture.asset(
+                      width: 20,
+                      height: 20,
                       'assets/icons/square.svg',
                       colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
                     ),

@@ -100,7 +100,7 @@ class DropdownField extends StatelessWidget {
       dropdownStyleData: DropdownStyleData(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: BaseColors.secondaryBackground,
+          color: BaseColors.primaryBackground,
         ),
       ),
       menuItemStyleData: const MenuItemStyleData(

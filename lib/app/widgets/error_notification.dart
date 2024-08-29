@@ -16,9 +16,11 @@ showErrorNotification({
   return ElegantNotification(
     icon: Icon(
       FontAwesomeIcons.circleExclamation,
-      color: type == "minor" ? AccentColors.warningColor : AccentColors.redColor,
+      color:
+          type == "minor" ? AccentColors.warningColor : AccentColors.redColor,
     ),
-    progressIndicatorColor: type == "minor" ? AccentColors.warningColor : AccentColors.redColor,
+    progressIndicatorColor:
+        type == "minor" ? AccentColors.warningColor : AccentColors.redColor,
     width: 360,
     toastDuration: const Duration(seconds: 5),
     stackedOptions: StackedOptions(
@@ -32,10 +34,11 @@ showErrorNotification({
       title,
       style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
     ),
-    background: BaseColors.secondaryBackground,
+    background: BaseColors.primaryBackground,
     description: Text(
       description,
-      style: AppFonts.regularText.copyWith(color: BaseColors.primaryText.withOpacity(.8)),
+      style: AppFonts.regularText
+          .copyWith(color: BaseColors.primaryText.withOpacity(.8)),
     ),
     onDismiss: () {},
   ).show(context);

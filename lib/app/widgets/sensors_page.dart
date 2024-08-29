@@ -26,24 +26,28 @@ class SensorsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int activePage = controller.activePage.value;
-    String menuTitle = controller.monitoringList[activePage].toString().camelCase!;
+    String menuTitle =
+        controller.monitoringList[activePage].toString().camelCase!;
 
     return Scaffold(
-      backgroundColor: BaseColors.primaryBackground,
+      backgroundColor: BaseColors.navbarBackground,
       body: Column(
         children: [
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: BaseColors.secondaryText.withOpacity(.25),
-                ),
-              ),
+              color: BaseColors.primaryBackground,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Text(
+                  "Monitoring Group : ",
+                  style: AppFonts.regularText.copyWith(
+                    color: BaseColors.secondaryText,
+                    fontSize: 14.0,
+                  ),
+                ),
                 Text(
                   controller.monitoringList[activePage],
                   style: AppFonts.boldText.copyWith(
@@ -52,17 +56,10 @@ class SensorsPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  "Monitoring",
-                  style: AppFonts.regularText.copyWith(
-                    color: BaseColors.secondaryText,
-                    fontSize: 14.0,
-                  ),
-                ),
                 const Spacer(),
                 AddSensorButton(
                   controller: controller,
-                  title: "Add Sensor",
+                  title: "New Sensor",
                   index: activePage,
                 )
               ],
@@ -81,8 +78,9 @@ class SensorsPage extends StatelessWidget {
                       children: [
                         Center(
                           child: Text(
-                            "There is no data to show",
-                            style: AppFonts.regularText.copyWith(color: BaseColors.primaryText),
+                            "Empty Sensors",
+                            style: AppFonts.regularText
+                                .copyWith(color: BaseColors.primaryText),
                           ),
                         ),
                       ],
@@ -91,10 +89,12 @@ class SensorsPage extends StatelessWidget {
                 }
 
                 List sensorId = controller.sensorsData[menuTitle]['Id'] ?? [];
-                List sensorAlert = controller.sensorsData[menuTitle]['alert'] ?? [];
+                List sensorAlert =
+                    controller.sensorsData[menuTitle]['alert'] ?? [];
                 List prtgIP = controller.sensorsData[menuTitle]['prtgIp'] ?? [];
 
-                String firstMonitoringMenu = controller.monitoringList[0].toString().camelCase!;
+                String firstMonitoringMenu =
+                    controller.monitoringList[0].toString().camelCase!;
 
                 return SizedBox(
                   height: maxHeig! < 400 || maxHeig! < 670
@@ -111,36 +111,48 @@ class SensorsPage extends StatelessWidget {
                           shrinkWrap: true,
                           addAutomaticKeepAlives: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          itemCount: controller.sensorsData[menuTitle]['Id'].length,
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          itemCount:
+                              controller.sensorsData[menuTitle]['Id'].length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: constraints.maxWidth < 580
                                 ? 1
-                                : constraints.maxWidth >= 580 && constraints.maxWidth < 680
+                                : constraints.maxWidth >= 580 &&
+                                        constraints.maxWidth < 680
                                     ? 2
-                                    : constraints.maxWidth >= 680 && constraints.maxWidth < 780
+                                    : constraints.maxWidth >= 680 &&
+                                            constraints.maxWidth < 780
                                         ? 2
-                                        : constraints.maxWidth >= 780 && constraints.maxWidth < 880
+                                        : constraints.maxWidth >= 780 &&
+                                                constraints.maxWidth < 880
                                             ? 2
                                             : constraints.maxWidth >= 880 &&
                                                     constraints.maxWidth < 1100
                                                 ? 3
-                                                : constraints.maxWidth >= 1100 &&
-                                                        constraints.maxWidth < 1200
+                                                : constraints.maxWidth >=
+                                                            1100 &&
+                                                        constraints.maxWidth <
+                                                            1200
                                                     ? 3
                                                     : 4,
                             childAspectRatio: constraints.maxWidth < 580
                                 ? 2
-                                : constraints.maxWidth >= 580 && constraints.maxWidth < 680
+                                : constraints.maxWidth >= 580 &&
+                                        constraints.maxWidth < 680
                                     ? 1.5
-                                    : constraints.maxWidth >= 680 && constraints.maxWidth < 780
+                                    : constraints.maxWidth >= 680 &&
+                                            constraints.maxWidth < 780
                                         ? 1.5
-                                        : constraints.maxWidth >= 780 && constraints.maxWidth < 880
+                                        : constraints.maxWidth >= 780 &&
+                                                constraints.maxWidth < 880
                                             ? 1.8
                                             : constraints.maxWidth >= 880 &&
                                                     constraints.maxWidth < 1100
                                                 ? 1.7
-                                                : constraints.maxWidth >= 1100 &&
-                                                        constraints.maxWidth < 1200
+                                                : constraints.maxWidth >=
+                                                            1100 &&
+                                                        constraints.maxWidth <
+                                                            1200
                                                     ? 1.7
                                                     : 1.5,
                             crossAxisSpacing: 10,
@@ -159,10 +171,12 @@ class SensorsPage extends StatelessWidget {
                                   : controller.activeObjectName.value,
                             ),
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
                                 return Center(
                                   child: LoadingAnimationWidget.waveDots(
-                                    color: BaseColors.secondaryText.withOpacity(.5),
+                                    color: BaseColors.secondaryText
+                                        .withOpacity(.5),
                                     size: 26,
                                   ),
                                 );
@@ -185,14 +199,14 @@ class SensorsPage extends StatelessWidget {
                                   width: Get.width,
                                   height: Get.height,
                                   decoration: BoxDecoration(
-                                    color: BaseColors.secondaryBackground,
+                                    color: BaseColors.primaryBackground,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Column(
                                     children: [
                                       const Spacer(),
                                       Text(
-                                        "Sensor ID : ${prtgIP[index]['user']}",
+                                        "Sensor ID : ${sensorId[index]}",
                                         style: AppFonts.regularText.copyWith(
                                           fontSize: 12.0,
                                           color: BaseColors.primaryText,
@@ -206,7 +220,7 @@ class SensorsPage extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        "Failed to Get Response from Server",
+                                        "ERROR : Failed to Get Response from Server",
                                         style: AppFonts.regularText.copyWith(
                                           fontSize: 12.0,
                                           color: AccentColors.redColor,
@@ -234,7 +248,8 @@ class SensorsPage extends StatelessWidget {
                                     onPressed: () => showDialog(
                                       context: context,
                                       builder: (context) {
-                                        String pageName = controller.monitoringList[activePage]
+                                        String pageName = controller
+                                            .monitoringList[activePage]
                                             .toString()
                                             .camelCase!;
 
@@ -242,19 +257,23 @@ class SensorsPage extends StatelessWidget {
                                             .sensorsData[pageName]['Id'][index]
                                             .toString();
 
-                                        controller.prtgIpTC.text = controller.sensorsData[pageName]
-                                                ['prtgIp'][index]['ip']
+                                        controller.prtgIpTC.text = controller
+                                            .sensorsData[pageName]['prtgIp']
+                                                [index]['ip']
                                             .toString();
 
                                         controller.passwordTC.text = controller
-                                            .sensorsData[pageName]['prtgIp'][index]['pass']
+                                            .sensorsData[pageName]['prtgIp']
+                                                [index]['pass']
                                             .toString();
 
                                         controller.usernameTC.text = controller
-                                            .sensorsData[pageName]['prtgIp'][index]['user']
+                                            .sensorsData[pageName]['prtgIp']
+                                                [index]['user']
                                             .toString();
 
-                                        return updateDialog(context, index, sensorAlert[index]);
+                                        return updateDialog(
+                                            context, index, sensorAlert[index]);
                                       },
                                     ),
                                     iconSize: 12,
@@ -293,7 +312,8 @@ class SensorsPage extends StatelessWidget {
                                       splashRadius: 12,
                                       icon: Icon(
                                         FontAwesomeIcons.soundcloud,
-                                        color: BaseColors.navbarBackground.withOpacity(.5),
+                                        color: BaseColors.navbarBackground
+                                            .withOpacity(.5),
                                       ),
                                     ),
                                   ),

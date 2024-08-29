@@ -26,12 +26,10 @@ class LogoutButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Material(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(15),
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
-            // controller.dropdownData = await controller.getMonitoringGroup();
-
             showDialog(
               context: context,
               builder: (context) {
@@ -50,7 +48,7 @@ class LogoutButton extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                            "Are you sure to logout?",
+                            "Sign out from this app?",
                             style: AppFonts.regularText.copyWith(
                               color: BaseColors.primaryText.withOpacity(.5),
                               fontSize: 14.0,
@@ -70,7 +68,7 @@ class LogoutButton extends StatelessWidget {
 
                                 Get.offAndToNamed(Routes.LOGIN);
                               },
-                              title: 'Logout',
+                              title: 'Sign Out',
                               color: AccentColors.redColor,
                             ),
                           )
@@ -82,13 +80,13 @@ class LogoutButton extends StatelessWidget {
               },
             );
           },
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(15),
           child: Container(
             width: isShrink ? 230 : 40,
-            height: isShrink ? 54 : 40,
+            height: isShrink ? 44 : 40,
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(15),
               border: Border.all(
                 color: BaseColors.secondaryBackground,
                 width: 1,
@@ -119,7 +117,7 @@ class LogoutButton extends StatelessWidget {
                 : const Center(
                     child: Icon(
                       FontAwesomeIcons.rightFromBracket,
-                      color: AccentColors.redColor,
+                      color: AccentColors.maroonColor,
                       size: 14,
                     ),
                   ),

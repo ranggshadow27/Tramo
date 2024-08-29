@@ -46,7 +46,7 @@ Widget settingDialog(BuildContext context) {
             myCustomButton(
               onTap: () => controller.saveApiEndPoint(),
               title: "Update",
-              color: BaseColors.secondaryBackground,
+              color: AccentColors.tealColor,
             ),
             const SizedBox(height: 4),
             Obx(() => controller.saveApiURL.isFalse
@@ -72,7 +72,9 @@ Widget settingDialog(BuildContext context) {
                 hintText: "Monitoring Group",
                 labelText: "Select Group",
                 items: List<String>.from(controller.dropdownData),
-                errorText: controller.errNameObs.value != "" ? controller.errNameObs.value : null,
+                errorText: controller.errNameObs.value != ""
+                    ? controller.errNameObs.value
+                    : null,
               );
             }),
             const SizedBox(height: 6),
@@ -88,10 +90,11 @@ Widget settingDialog(BuildContext context) {
 
                         showDialog(context: context, builder: editGroupDialog);
                       } else {
-                        controller.errNameObs.value = "Please select group first!";
+                        controller.errNameObs.value =
+                            "Please select group first!";
                       }
                     },
-                    color: BaseColors.secondaryBackground,
+                    color: AccentColors.tealColor,
                     title: "Edit Group",
                   ),
                 ),
@@ -110,7 +113,8 @@ Widget settingDialog(BuildContext context) {
                           ),
                         );
                       } else {
-                        controller.errNameObs.value = "Please select group first!";
+                        controller.errNameObs.value =
+                            "Please select group first!";
                       }
                     },
                     color: AccentColors.maroonColor,
@@ -135,7 +139,7 @@ Widget settingDialog(BuildContext context) {
                   child: myCustomButton(
                     onTap: () => controller.exportProfile(),
                     title: "Export",
-                    color: BaseColors.secondaryBackground,
+                    color: AccentColors.tealColor,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -144,7 +148,7 @@ Widget settingDialog(BuildContext context) {
                   child: myCustomButton(
                     onTap: () => controller.importProfile(context),
                     title: "Import",
-                    color: BaseColors.secondaryBackground,
+                    color: AccentColors.tealColor,
                   ),
                 ),
               ],

@@ -31,7 +31,7 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
             Text(
               "| Sensor Setting",
               style: AppFonts.regularText.copyWith(
-                color: BaseColors.primaryText.withOpacity(.5),
+                color: BaseColors.primaryText,
                 fontSize: 14.0,
               ),
             ),
@@ -103,7 +103,7 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
             ),
             const SizedBox(height: 8),
             myCustomButton(
-              color: BaseColors.secondaryBackground,
+              color: AccentColors.tealColor,
               title: "Update",
               onTap: () async {
                 await controller.updateSensor(index);
@@ -111,7 +111,7 @@ Widget updateDialog(BuildContext context, int index, bool isMuted) {
             ),
             const SizedBox(height: 4),
             myCustomButton(
-                color: BaseColors.secondaryBackground,
+                color: AccentColors.tealColor,
                 title: !isMuted ? "Enable Alarm" : "Disable Alarm",
                 onTap: () {
                   controller.disableAlert(index);
