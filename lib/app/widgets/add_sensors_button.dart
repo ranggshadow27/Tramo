@@ -45,7 +45,7 @@ class AddSensorButton extends StatelessWidget {
           },
           borderRadius: BorderRadius.circular(8),
           child: Container(
-            width: isShrink ? 130 : 30,
+            width: isShrink ? 150 : 30,
             height: isShrink ? 40 : 30,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
@@ -64,9 +64,9 @@ class AddSensorButton extends StatelessWidget {
                       SizedBox(
                         child: Text(
                           title,
-                          style: AppFonts.semiBoldText.copyWith(
+                          style: AppFonts.boldText.copyWith(
                             color: BaseColors.primaryText,
-                            fontSize: 14.0,
+                            fontSize: 12.0,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -109,8 +109,9 @@ Widget myCustomDialog(BuildContext context, int index) {
               () => myTextField(
                 hintText: "ex. 25609",
                 c: controller.sensorsIdTC,
-                errorText:
-                    controller.groupNameObs.value == "" ? null : controller.groupNameObs.value,
+                errorText: controller.groupNameObs.value == ""
+                    ? null
+                    : controller.groupNameObs.value,
                 labelText: "Insert the Sensor ID from PRTG",
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
@@ -125,7 +126,9 @@ Widget myCustomDialog(BuildContext context, int index) {
               () => myTextField(
                 hintText: "ex. 202.55.175.235:8443",
                 c: controller.prtgIpTC,
-                errorText: controller.errNameObs.value == "" ? null : controller.errNameObs.value,
+                errorText: controller.errNameObs.value == ""
+                    ? null
+                    : controller.errNameObs.value,
                 labelText: "Insert the PRTG IP",
                 onChanged: (value) {
                   if (value.isNotEmpty) {
@@ -139,8 +142,9 @@ Widget myCustomDialog(BuildContext context, int index) {
               () => myTextField(
                 hintText: "Username",
                 c: controller.usernameTC,
-                errorText:
-                    controller.errUsernameObs.value == "" ? null : controller.errUsernameObs.value,
+                errorText: controller.errUsernameObs.value == ""
+                    ? null
+                    : controller.errUsernameObs.value,
                 labelText: "Insert the PRTG Username",
                 onChanged: (value) {
                   if (value.isNotEmpty) {
@@ -155,8 +159,9 @@ Widget myCustomDialog(BuildContext context, int index) {
                 hintText: "Password",
                 c: controller.passwordTC,
                 isPassword: true,
-                errorText:
-                    controller.errPasswordObs.value == "" ? null : controller.errPasswordObs.value,
+                errorText: controller.errPasswordObs.value == ""
+                    ? null
+                    : controller.errPasswordObs.value,
                 labelText: "Insert the PRTG Password",
                 onChanged: (value) {
                   if (value.isNotEmpty) {

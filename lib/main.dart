@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'app/modules/home/controllers/home_controller.dart';
 import 'app/routes/app_pages.dart';
-import 'dart:html' as html;
 
 void main() async {
   SharedPreferences pref = await SharedPreferences.getInstance();
@@ -15,7 +13,7 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: "Tramo",
+      title: "Sysmo",
       debugShowCheckedModeBanner: false,
       initialRoute: !isLogin ? Routes.LOGIN : Routes.HOME,
       getPages: AppPages.routes,

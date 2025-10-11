@@ -34,7 +34,7 @@ class LoginController extends GetxController {
 
   login(BuildContext context) async {
     if (emailTC.text.isNotEmpty && passTC.text.isNotEmpty) {
-      if (emailTC.text == "testadmin" && passTC.text == "admintest") {
+      if (emailTC.text == "superadmin" && passTC.text == "masteradmin") {
         SharedPreferences pref = await SharedPreferences.getInstance();
 
         pref.setBool('session', true);
@@ -46,13 +46,13 @@ class LoginController extends GetxController {
         showErrorNotification(
             context: context,
             type: 'major',
-            description: "Login Error : Username or Password incorrect");
+            description: "Sign In Error : Username or Password incorrect");
       }
     } else {
       showErrorNotification(
           context: context,
           type: 'major',
-          description: "Login Error : Please fill the required field");
+          description: "Sign In Error : Please fill the required field");
     }
   }
 }

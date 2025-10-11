@@ -45,21 +45,23 @@ class LogoutButton extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      width: 300,
+                      width: 30,
+                      height: 200,
                       padding: const EdgeInsets.all(32),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Are you sure to logout?",
+                            "This action will sign out your account, continue?",
                             style: AppFonts.regularText.copyWith(
                               color: BaseColors.primaryText.withOpacity(.5),
                               fontSize: 14.0,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 32),
                           SizedBox(
-                            width: 200,
+                            width: 150,
                             height: 45,
                             child: myCustomButton(
                               onTap: () async {
@@ -70,7 +72,7 @@ class LogoutButton extends StatelessWidget {
 
                                 Get.offAndToNamed(Routes.LOGIN);
                               },
-                              title: 'Logout',
+                              title: 'Sign Out',
                               color: AccentColors.redColor,
                             ),
                           )

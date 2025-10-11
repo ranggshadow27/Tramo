@@ -14,11 +14,13 @@ class ChartWidget extends StatelessWidget {
   String? chartTitle;
   String? sensorID;
   String? prtgIP;
+  Color lineColor;
   List mainData;
   List timeData;
 
   ChartWidget({
     required this.controller,
+    required this.lineColor,
     this.chartTitle,
     this.sensorID,
     this.prtgIP,
@@ -32,8 +34,9 @@ class ChartWidget extends StatelessWidget {
     int latestData = mainData[mainData.length - 1];
 
     var maxVal = mainData.reduce(
-      (previousValue, element) =>
-          previousValue > element ? previousValue.toDouble() : element.toDouble(),
+      (previousValue, element) => previousValue > element
+          ? previousValue.toDouble()
+          : element.toDouble(),
     );
 
     late double latestAverage;
@@ -48,10 +51,11 @@ class ChartWidget extends StatelessWidget {
     } else {
       // totalAvg = mainData.reversed.toList().sublist(0, mainData.length).length;
 
-      latestAverage = mainData.reversed.toList().sublist(0, mainData.length).fold(
-            0,
-            (prevVal, element) => prevVal > element ? prevVal : element,
-          );
+      latestAverage =
+          mainData.reversed.toList().sublist(0, mainData.length).fold(
+                0,
+                (prevVal, element) => prevVal > element ? prevVal : element,
+              );
     }
 
     // double currentThresold = (latestAverage / totalAvg) * .85;
@@ -278,7 +282,8 @@ class ChartWidget extends StatelessWidget {
                 maxContentWidth: 200,
 
                 // tooltipBgColor: BaseColors.secondaryBackground.withOpacity(.8),
-                getTooltipColor: (touchedSpot) => BaseColors.secondaryBackground.withOpacity(.8),
+                getTooltipColor: (touchedSpot) =>
+                    BaseColors.secondaryBackground.withOpacity(.8),
 
                 showOnTopOfTheChartBoxArea: true,
 
@@ -303,10 +308,11 @@ class ChartWidget extends StatelessWidget {
                 dotData: FlDotData(show: false),
                 spots: List.generate(
                   mainData.length,
-                  (index) => FlSpot(index.toDouble(), mainData[index].toDouble()),
+                  (index) =>
+                      FlSpot(index.toDouble(), mainData[index].toDouble()),
                 ),
                 color: latestData >= minorThresold
-                    ? AccentColors.tealColor
+                    ? lineColor
                     : latestData < minorThresold && latestData > majorThresold
                         ? AccentColors.yellowColor
                         : AccentColors.maroonColor,
@@ -318,12 +324,13 @@ class ChartWidget extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: latestData >= minorThresold
                         ? [
-                            AccentColors.tealColor.withOpacity(.2),
-                            AccentColors.tealColor.withOpacity(.05),
-                            AccentColors.tealColor.withOpacity(0),
-                            AccentColors.tealColor.withOpacity(0),
+                            lineColor.withOpacity(.2),
+                            lineColor.withOpacity(.05),
+                            lineColor.withOpacity(0),
+                            lineColor.withOpacity(0),
                           ]
-                        : latestData < minorThresold && latestData > majorThresold
+                        : latestData < minorThresold &&
+                                latestData > majorThresold
                             ? [
                                 AccentColors.yellowColor.withOpacity(.2),
                                 AccentColors.yellowColor.withOpacity(.05),

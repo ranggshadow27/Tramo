@@ -47,14 +47,18 @@ class MonitoringList extends StatelessWidget {
                       const SizedBox(width: 45),
                       SvgPicture.asset(
                         'assets/icons/square.svg',
-                        colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                        width: 12,
+                        height: 12,
+                        colorFilter:
+                            ColorFilter.mode(iconColor, BlendMode.srcIn),
                       ),
                       const SizedBox(width: 12),
                       SizedBox(
                         width: 150,
                         child: Text(
                           title,
-                          style: AppFonts.semiBoldText.copyWith(color: BaseColors.primaryText),
+                          style: AppFonts.semiBoldText
+                              .copyWith(color: BaseColors.primaryText),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -64,6 +68,8 @@ class MonitoringList extends StatelessWidget {
                     message: title,
                     child: SvgPicture.asset(
                       'assets/icons/square.svg',
+                      width: 12,
+                      height: 12,
                       colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
                     ),
                   ),

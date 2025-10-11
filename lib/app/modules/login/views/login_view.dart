@@ -30,16 +30,30 @@ class LoginView extends GetView<LoginController> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Welcome",
-                  style: AppFonts.regularText.copyWith(
+                  "Welcome!",
+                  style: AppFonts.boldText.copyWith(
                     color: BaseColors.primaryText,
                     fontSize: 18,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Please login to continue using app",
+                  "Sysmo - Realtime Traffic Watcher",
                   style: AppFonts.regularText.copyWith(
+                    color: BaseColors.secondaryText,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Divider(
+                  thickness: .4,
+                  indent: 42,
+                  endIndent: 42,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Please sign in to continue using the app",
+                  style: AppFonts.boldText.copyWith(
                     color: BaseColors.secondaryText,
                     fontSize: 14,
                   ),
@@ -48,7 +62,7 @@ class LoginView extends GetView<LoginController> {
                 SizedBox(
                   width: mediaQuery.width * .2,
                   child: myTextField(
-                    hintText: 'Your username here',
+                    hintText: 'Please insert username',
                     labelText: 'Username',
                     c: controller.emailTC,
                     onChanged: (p0) {},
@@ -71,7 +85,7 @@ class LoginView extends GetView<LoginController> {
                   height: 45,
                   child: myCustomButton(
                     onTap: () => controller.login(context),
-                    title: 'Login',
+                    title: 'Sign In',
                   ),
                 )
               ],

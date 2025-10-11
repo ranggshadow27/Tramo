@@ -59,6 +59,8 @@ class HomeController extends GetxController {
   TextEditingController endPointTC = TextEditingController();
   TextEditingController usernameTC = TextEditingController();
   TextEditingController passwordTC = TextEditingController();
+  TextEditingController chartColorTC = TextEditingController();
+  TextEditingController customSensorNameTC = TextEditingController();
 
   TextEditingController apiServerTC = TextEditingController();
   TextEditingController renameGroupTC = TextEditingController();
@@ -214,14 +216,16 @@ class HomeController extends GetxController {
     activePage.value = indexPage;
 
     saveActivePage();
-    activeObjectName.value = "sv_${monitoringList[indexPage].toString().camelCase}";
+    activeObjectName.value =
+        "sv_${monitoringList[indexPage].toString().camelCase}";
 
     debugPrint(
         "Saat ini masuk page dari menu ${monitoringList[indexPage]} -- ${activeObjectName.value}");
 
     sensorsValue = await getSensorsValue(activeObjectName.value);
 
-    debugPrint("Berikut data dari menu ${activeObjectName.value}\n $sensorsValue");
+    debugPrint(
+        "Berikut data dari menu ${activeObjectName.value}\n $sensorsValue");
 
     update();
   }
@@ -270,7 +274,8 @@ class HomeController extends GetxController {
 
   void saveMonitoringGroup() async {
     List monitoringData = await getMonitoringGroup();
-    bool isDuplicate = monitoringData.any((element) => element == monitoringGroupTC.text);
+    bool isDuplicate =
+        monitoringData.any((element) => element == monitoringGroupTC.text);
 
     if (monitoringGroupTC.text.isNotEmpty) {
       String sensorValueKey = "sv_${monitoringGroupTC.text.camelCase}";
@@ -298,7 +303,8 @@ class HomeController extends GetxController {
         monitoringList.add(monitoringGroupTC.text);
 
         if (monitoringList.length == 1) {
-          activeObjectName.value = "sv_${monitoringList[0].toString().camelCase}";
+          activeObjectName.value =
+              "sv_${monitoringList[0].toString().camelCase}";
         }
 
         update();
@@ -314,7 +320,7 @@ class HomeController extends GetxController {
         debugPrint("Hmm.. menu sudah ada");
       }
     } else {
-      groupNameObs.value = "Group name cannot be empty.";
+      groupNameObs.value = "Please name your sensor group.";
 
       debugPrint("Diisi dulu lah breay");
     }
@@ -381,7 +387,8 @@ class HomeController extends GetxController {
     List newSensorValue = [];
 
     try {
-      if (renameGroupTC.text.isNotEmpty && renameGroupTC.text != selectedGroupName) {
+      if (renameGroupTC.text.isNotEmpty &&
+          renameGroupTC.text != selectedGroupName) {
         int groupIndex = groupData.indexOf(selectedGroupName);
 
         debugPrint(
@@ -403,7 +410,8 @@ class HomeController extends GetxController {
         String oldGroupName = selectedGroupName.toString().camelCase!;
         String newGroupName = renameGroupTC.text.toString().camelCase!;
 
-        debugPrint("3. Ini old&newnya cuy --->\nold: $oldGroupName new: $newGroupName");
+        debugPrint(
+            "3. Ini old&newnya cuy --->\nold: $oldGroupName new: $newGroupName");
 
         for (var key in sensorsData.keys) {
           if (key == oldGroupName) {
@@ -488,12 +496,14 @@ class HomeController extends GetxController {
 
     if (obj != null) {
       sensorsValueList.addAll(List.from(obj as List));
-      debugPrint("Ini isi data Sensor Value $objectStore : \n -> $sensorsValueList");
+      debugPrint(
+          "Ini isi data Sensor Value $objectStore : \n -> $sensorsValueList");
 
       return sensorsValueList;
     }
 
-    debugPrint("Kayaknya data Sensor Valuenya kosong : \n -> $sensorsValueList");
+    debugPrint(
+        "Kayaknya data Sensor Valuenya kosong : \n -> $sensorsValueList");
 
     return sensorsValueList;
   }
@@ -555,11 +565,13 @@ class HomeController extends GetxController {
         debugPrint(
             "----------------> Ganti index ke $indexOfLastValue dari jumlah ${sensorsValueList[index]['value'].length} ");
 
-        debugPrint("yang datanya adalah: \n--->${sensorsValueList[index]['value'].last}");
+        debugPrint(
+            "yang datanya adalah: \n--->${sensorsValueList[index]['value'].last}");
 
         sensorsValueList[index]['value'].last = apiValue;
 
-        debugPrint("Setelah diganti menjadi: \n--->${sensorsValueList[index]['value'].last}");
+        debugPrint(
+            "Setelah diganti menjadi: \n--->${sensorsValueList[index]['value'].last}");
 
         await store.put(sensorsValueList, objectName);
         await txn.completed;
@@ -601,7 +613,8 @@ class HomeController extends GetxController {
 
     await store.put(sensorsValueList, key);
 
-    debugPrint("Sukses input data Sensor Valuenya ke objekstore $key : \n -> $sensorsValueList");
+    debugPrint(
+        "Sukses input data Sensor Valuenya ke objekstore $key : \n -> $sensorsValueList");
 
     await txn.completed;
   }
@@ -619,7 +632,8 @@ class HomeController extends GetxController {
       Map<String, dynamic> dataMap = (obj as Map).map(
         (key, value) => MapEntry(key.toString(), value),
       );
-      debugPrint("ini get sensorsData dari Objek yang udah dimap : \n -> $dataMap");
+      debugPrint(
+          "ini get sensorsData dari Objek yang udah dimap : \n -> $dataMap");
       sensors.addAll(dataMap);
     }
 
@@ -664,6 +678,8 @@ class HomeController extends GetxController {
                 'ip': prtgIpTC.text,
                 'user': usernameTC.text,
                 'pass': passwordTC.text,
+                'custom_name': "",
+                'chart_color': "",
               }
             ],
             'alert': [true],
@@ -677,6 +693,8 @@ class HomeController extends GetxController {
             'ip': prtgIpTC.text,
             'user': usernameTC.text,
             'pass': passwordTC.text,
+            'custom_name': "",
+            'chart_color': "",
           });
           keyedSensorsData['alert'].add(true);
 
@@ -684,7 +702,8 @@ class HomeController extends GetxController {
         }
 
         sensorsData.addAll({menuTitle: keyedSensorsData});
-        debugPrint("menambahkan data ke master sensors data juga, output : $sensorsData");
+        debugPrint(
+            "menambahkan data ke master sensors data juga, output : $sensorsData");
 
         Transaction txn = db!.transaction('sensorsData', 'readwrite');
         ObjectStore store = txn.objectStore('sensorsData');
@@ -704,7 +723,8 @@ class HomeController extends GetxController {
 
         update();
 
-        debugPrint("Sukses save sensorsdata ke localStorage, isinya: \n - $sensorsData");
+        debugPrint(
+            "Sukses save sensorsdata ke localStorage, isinya: \n - $sensorsData");
       } catch (e) {
         debugPrint(e.toString());
       }
@@ -739,7 +759,7 @@ class HomeController extends GetxController {
       var dio = d.Dio();
 
       var apiEndpoint = await getApiEndPoint();
-      var apiURL = "http://localhost:8080/backhaul/";
+      var apiURL = await getApiEndPoint();
 
       if (apiEndpoint == "localhost:8080") {
         apiURL = "http://localhost:8080/backhaul/";
@@ -756,14 +776,18 @@ class HomeController extends GetxController {
         };
         debugPrint("BERIKUT POST DATANYA 1 -> $postData ~~~~~~~~~~~");
 
-        final response = await dio.post(apiURL, data: d.FormData.fromMap(postData));
+        final response =
+            await dio.post(apiURL, data: d.FormData.fromMap(postData));
 
         if (response.statusCode == 200 && response.data != null) {
-          Map<String, dynamic> responseData = Map<String, dynamic>.from(response.data);
+          Map<String, dynamic> responseData =
+              Map<String, dynamic>.from(response.data);
           debugPrint('berikut datanya : \n-> ${responseData['sensordata']}');
 
-          var apiValue = responseData['sensordata']['value'].toString().split(" ")[0];
-          debugPrint("ini valuenyaa cuy : ${Utils.formatRawApiValue(apiValue)}");
+          var apiValue =
+              responseData['sensordata']['value'].toString().split(" ")[0];
+          debugPrint(
+              "ini valuenyaa cuy : ${Utils.formatRawApiValue(apiValue)}");
 
           await saveSensorValue(
             objectName,
@@ -772,7 +796,8 @@ class HomeController extends GetxController {
             responseData['sensordata']['name'],
           );
 
-          debugPrint("Ini currentSensorValue setelah di Add Value Baru-> \n${sensorsValue[index]}");
+          debugPrint(
+              "Ini currentSensorValue setelah di Add Value Baru-> \n${sensorsValue[index]}");
 
           if (isTimerRunning == false) {
             timer = Timer.periodic(const Duration(seconds: 20), (timer) async {
@@ -809,19 +834,17 @@ class HomeController extends GetxController {
     String menuTitle = monitoringList[activePage.value].toString().camelCase!;
     String currentSensorID = sensorsData[menuTitle]['Id'][index].toString();
 
-    if (sensorsIdTC.text == currentSensorID) {
-      groupNameObs.value = "Please input a different Sensor ID";
-
-      return;
-    }
-
     if (sensorsIdTC.text.isNotEmpty && prtgIpTC.text.isNotEmpty) {
-      Map<String, dynamic> keyedSensorsData = await getSensorsData(key: menuTitle);
+      Map<String, dynamic> keyedSensorsData =
+          await getSensorsData(key: menuTitle);
 
       keyedSensorsData['Id'][index] = (int.parse(sensorsIdTC.text));
       keyedSensorsData['prtgIp'][index]['ip'] = prtgIpTC.text;
       keyedSensorsData['prtgIp'][index]['user'] = usernameTC.text;
       keyedSensorsData['prtgIp'][index]['pass'] = passwordTC.text;
+      keyedSensorsData['prtgIp'][index]['chart_color'] = chartColorTC.text;
+      keyedSensorsData['prtgIp'][index]['custom_name'] =
+          customSensorNameTC.text;
 
       sensorsData.addAll({menuTitle: keyedSensorsData});
 
@@ -835,10 +858,12 @@ class HomeController extends GetxController {
         data: sensorsData,
       );
 
-      sensorsValue[index]['sensorId'] = (int.parse(sensorsIdTC.text));
-      sensorsValue[index]['name'] = "Updating sensor from server, Pls wait..";
-      sensorsValue[index]['value'] = [];
-      sensorsValue[index]['time'] = [];
+      if (sensorsIdTC.text != currentSensorID) {
+        sensorsValue[index]['sensorId'] = (int.parse(sensorsIdTC.text));
+        sensorsValue[index]['name'] = "Updating sensor from server, Pls wait..";
+        sensorsValue[index]['value'] = [];
+        sensorsValue[index]['time'] = [];
+      }
 
       await Utils.transaction(
         type: "save",
@@ -917,7 +942,8 @@ class HomeController extends GetxController {
   disableAlert(int index) async {
     String menuTitle = monitoringList[activePage.value].toString().camelCase!;
     bool isAlertEnable = sensorsData[menuTitle]['alert'][index];
-    debugPrint("-----------> Alert Sensor ${sensorsValue[index]['name']} Before $isAlertEnable");
+    debugPrint(
+        "-----------> Alert Sensor ${sensorsValue[index]['name']} Before $isAlertEnable");
 
     isAlertEnable = !isAlertEnable;
     isRefresh.value = true;
@@ -932,7 +958,8 @@ class HomeController extends GetxController {
       data: sensorsData,
     );
 
-    debugPrint("-----------> Alert Sensor ${sensorsValue[index]['name']} After $isAlertEnable");
+    debugPrint(
+        "-----------> Alert Sensor ${sensorsValue[index]['name']} After $isAlertEnable");
 
     Get.back();
 
@@ -968,7 +995,9 @@ class HomeController extends GetxController {
       // double maxlastestData = lastestData.fold(0, (prev, element) => prev + element);
 
       double maxlastestData = lastestData.fold(
-          0, (previousValue, element) => previousValue > element ? previousValue : element);
+          0,
+          (previousValue, element) =>
+              previousValue > element ? previousValue : element);
 
       double avgData = maxlastestData;
 
@@ -990,10 +1019,13 @@ class HomeController extends GetxController {
         if (currentData <= thresoldMajor || currentData < 10) {
           debugPrint("----------------------> Playing Major Alarm");
           showErrorNotification(
-              context: context, description: "$sensorName is low Traffic", type: "major");
+              context: context,
+              description: "$sensorName is low Traffic",
+              type: "major");
 
           try {
-            audioplayer.play(DeviceFileSource('/assets/sounds/major_alarm.wav'), volume: .8);
+            audioplayer.play(DeviceFileSource('/assets/sounds/major_alarm.wav'),
+                volume: .8);
             debugPrint("----------------------> Playing Major Alarm 2");
           } on AudioPlayerException catch (e) {
             debugPrint("GAGAL PLAY CUY :$e");
@@ -1004,9 +1036,12 @@ class HomeController extends GetxController {
           debugPrint("----------------------> Playing Minor Alarm");
 
           try {
-            audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
+            audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'),
+                volume: .5);
             showErrorNotification(
-                context: context, description: "$sensorName is low Traffic", type: "minor");
+                context: context,
+                description: "$sensorName is low Traffic",
+                type: "minor");
             debugPrint("----------------------> Playing Minor Alarm 2");
           } on AudioPlayerException catch (e) {
             debugPrint("GAGAL PLAY CUY :$e");
@@ -1024,7 +1059,8 @@ class HomeController extends GetxController {
   playSound() {
     debugPrint("----------------------> Playing Minor Alarm");
 
-    audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'), volume: .5);
+    audioplayer.play(DeviceFileSource('/assets/sounds/minor_alarm.wav'),
+        volume: .5);
   }
 
   exportProfile() async {
@@ -1084,7 +1120,9 @@ class HomeController extends GetxController {
             List sensorsValueList = [];
 
             if (newSensorsData[objectStore] != null) {
-              for (var i = 0; i < newSensorsData[objectStore]["Id"].length; i++) {
+              for (var i = 0;
+                  i < newSensorsData[objectStore]["Id"].length;
+                  i++) {
                 sensorsValueList.add({
                   "sensorId": newSensorsData[objectStore]["Id"][i],
                   "value": [],
@@ -1129,7 +1167,8 @@ class HomeController extends GetxController {
           update();
         });
 
-        showInfoNotification(context: context, description: "Profile Imported Successfully!");
+        showInfoNotification(
+            context: context, description: "Profile Imported Successfully!");
       } else {
         debugPrint("File yg di Import Tidak ada CUY!");
       }
@@ -1164,6 +1203,7 @@ class HomeController extends GetxController {
     Get.back();
 
     showInfoNotification(
-        context: context, description: "Success resetting sensors data in ${selectedGroupName!}");
+        context: context,
+        description: "Success resetting sensors data in ${selectedGroupName!}");
   }
 }

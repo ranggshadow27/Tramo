@@ -67,7 +67,8 @@ class AddMonitoringButton extends StatelessWidget {
                         width: 150,
                         child: Text(
                           title,
-                          style: AppFonts.semiBoldText.copyWith(color: BaseColors.primaryText),
+                          style: AppFonts.semiBoldText
+                              .copyWith(color: BaseColors.primaryText),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -106,11 +107,12 @@ Widget myCustomDialog(BuildContext context) {
           children: [
             Obx(
               () => myTextField(
-                hintText: "VSAT Traffic Monitoring Group",
+                hintText: "New Traffic Monitoring Group",
                 c: controller.monitoringGroupTC,
-                errorText:
-                    controller.groupNameObs.value == "" ? null : controller.groupNameObs.value,
-                labelText: "Insert Group Name",
+                errorText: controller.groupNameObs.value == ""
+                    ? null
+                    : controller.groupNameObs.value,
+                labelText: "Create new Group",
                 onChanged: (value) {
                   if (value.isNotEmpty) {
                     controller.groupNameObs.value = "";
@@ -121,7 +123,7 @@ Widget myCustomDialog(BuildContext context) {
             const SizedBox(height: 6),
             myCustomButton(
               onTap: () => controller.saveMonitoringGroup(),
-              title: "Submit",
+              title: "Create",
             )
           ],
         ),

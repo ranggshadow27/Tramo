@@ -78,10 +78,10 @@ class HomeView extends GetView<HomeController> {
                       //   iconColor: AccentColors.tealColor,
                       // ),
                       MenuList(
-                        title: "Monitoring",
+                        title: "Traffic Watcher",
                         isShrink: controller.isNavbarShrink.value,
-                        icon: FontAwesomeIcons.chartSimple,
-                        iconColor: AccentColors.redColor,
+                        icon: FontAwesomeIcons.chartLine,
+                        iconColor: AccentColors.tealColor,
                       ),
                       SizedBox(
                         height: maxGroups < 1
@@ -117,13 +117,13 @@ class HomeView extends GetView<HomeController> {
                       ),
                       const SizedBox(height: 12),
                       AddMonitoringButton(
-                        title: 'Add New Group',
+                        title: 'Create New Group',
                         controller: controller,
                       ),
                       const Spacer(),
                       SettingButton(title: "Settings"),
                       const SizedBox(height: 6),
-                      LogoutButton(title: "Logout"),
+                      LogoutButton(title: "Sign Out"),
                     ],
                   ),
                 );
@@ -142,12 +142,21 @@ class HomeView extends GetView<HomeController> {
                         )
                       : c.monitoringList.isEmpty
                           ? Center(
-                              child: Text(
-                                "There is no data to show",
-                                style: AppFonts.regularText
-                                    .copyWith(color: BaseColors.primaryText),
-                              ),
-                            )
+                              child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "No Traffic Found!",
+                                  style: AppFonts.boldText
+                                      .copyWith(color: AccentColors.redColor),
+                                ),
+                                Text(
+                                  "Traffic will appear direclty after you adding some sensor(s)",
+                                  style: AppFonts.regularText
+                                      .copyWith(color: BaseColors.primaryText),
+                                ),
+                              ],
+                            ))
                           : Center(
                               child: SensorsPage(
                                 dat: maxH.value,
@@ -180,7 +189,7 @@ Widget tramoLogo(
             alignment: Alignment.centerLeft,
             child: Text.rich(
               TextSpan(
-                text: "Tramo",
+                text: "Sysmo",
                 style: AppFonts.boldText.copyWith(
                   fontSize: 24.0,
                   color: BaseColors.primaryText,
@@ -189,7 +198,9 @@ Widget tramoLogo(
                   TextSpan(
                     text: ".",
                     style: AppFonts.boldText.copyWith(
-                        fontSize: 40.0, color: const Color(0xFF00E8E8)),
+                      fontSize: 45.0,
+                      color: AccentColors.tealColor,
+                    ),
                   ),
                 ],
               ),
@@ -207,16 +218,18 @@ Widget tramoLogo(
             child: Center(
               child: Text.rich(
                 TextSpan(
-                  text: "T",
+                  text: "Sy",
                   style: AppFonts.boldText.copyWith(
-                    fontSize: 24.0,
+                    fontSize: 18.0,
                     color: BaseColors.primaryText,
                   ),
                   children: [
                     TextSpan(
                       text: ".",
                       style: AppFonts.boldText.copyWith(
-                          fontSize: 40.0, color: const Color(0xFF00E8E8)),
+                        fontSize: 40.0,
+                        color: AccentColors.tealColor,
+                      ),
                     ),
                   ],
                 ),
